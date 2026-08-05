@@ -24,7 +24,7 @@
 - [Database Seeding](#-database-seeding)
 - [Testing](#-testing)
 - [Contributing](#-contributing)
-- [License](#-license)
+
 
 ---
 
@@ -554,29 +554,6 @@ npm install
 - Use Prettier for formatting
 - Follow React best practices
 - Write meaningful comments
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
----
-
-## 🙏 Acknowledgments
-
-- **Codefest Nepal 2026** - For the opportunity
-- **Nepal Government** - For inspiration
-- **Open Source Community** - For amazing tools
-
----
-
-## 📞 Contact
-
-For questions or support:
-- **Email**: info@sambandh.gov.np
-- **Website**: [sambandh.gov.np](https://sambandh.gov.np)
-- **GitHub**: [github.com/yourusername/sambandh](https://github.com/yourusername/sambandh)
 
 ---
 
