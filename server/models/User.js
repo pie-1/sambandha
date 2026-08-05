@@ -1,10 +1,9 @@
 /**
- * User Model
+ * User Model - Simplified
  * Handles authentication and roles
  */
 
 const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const UserSchema = new mongoose.Schema({
@@ -24,16 +23,11 @@ const UserSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true },
 }, { timestamps: true });
 
-// Hash password before saving
-UserSchema.pre('save', async function(next) {
-  if (!this.isModified('passwordHash')) return next();
-  const salt = await bcrypt.genSalt(10);
-  this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
-  next();
-});
+
 
 // Compare password
 UserSchema.methods.comparePassword = async function(password) {
+  const bcrypt = require("bcryptjs");
   return await bcrypt.compare(password, this.passwordHash);
 };
 

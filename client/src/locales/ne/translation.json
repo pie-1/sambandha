@@ -1,0 +1,32 @@
+{
+  "app": {
+    "name": "सम्बन्ध",
+    "tagline": "नेपाल नीति सह-निर्माण प्लेटफर्म"
+  },
+  "nav": {
+    "dashboard": "ड्यासबोर्ड",
+    "policies": "नीतिहरू",
+    "upload": "मस्यौदा अपलोड",
+    "feedback": "प्रतिक्रिया",
+    "login": "लगइन",
+    "register": "दर्ता",
+    "logout": "लगआउट"
+  },
+  "auth": {
+    "login": "लगइन",
+    "register": "दर्ता",
+    "email": "इमेल",
+    "password": "पासवर्ड",
+    "name": "पूरा नाम",
+    "phone": "फोन नम्बर",
+    "role": "भूमिका",
+    "citizen": "नागरिक",
+    "expert": "विज्ञ",
+    "officer": "सरकारी अधिकृत",
+    "noAccount": "खाता छैन?",
+    "hasAccount": "पहिले नै खाता छ?"
+  },
+  "dashboard": {
+    "welcome": "स्वागत छ"
+  }
+}

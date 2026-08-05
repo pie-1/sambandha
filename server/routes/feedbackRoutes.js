@@ -8,10 +8,12 @@ const express = require("express");
 const router = express.Router({ mergeParams: true });
 const { verifyToken } = require("../middleware/auth");
 const { requireRole } = require("../middleware/roleCheck");
-const { validateFeedback } = require("../middleware/validation");
-const feedbackController = require("../controllers/feedbackController"); // ✅
 
-router.post("/", verifyToken, requireRole('citizen'), validateFeedback, feedbackController.submitFeedback);
+// const { validateFeedback } = require("../middleware/validation");
+const feedbackController = require("../controllers/feedbackController");
+
+
+router.post("/", verifyToken, requireRole('citizen'), feedbackController.submitFeedback);
 router.get("/summary", verifyToken, feedbackController.getFeedbackSummary);
 router.get("/", verifyToken, feedbackController.getFeedback);
 

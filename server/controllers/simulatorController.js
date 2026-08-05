@@ -1,7 +1,7 @@
 /**
  * Simulator Controller
  * Placeholder for impact simulation
- * Your friend will replace this with actual model
+ * will replaced this with actual model
  */
 
 exports.simulate = async (req, res) => {

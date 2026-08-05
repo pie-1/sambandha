@@ -1,0 +1,32 @@
+{
+  "app": {
+    "name": "Sambandh",
+    "tagline": "Nepal Policy Co-Creation Platform"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "policies": "Policies",
+    "upload": "Upload Draft",
+    "feedback": "Feedback",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full Name",
+    "phone": "Phone Number",
+    "role": "Role",
+    "citizen": "Citizen",
+    "expert": "Expert",
+    "officer": "Government Officer",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?"
+  },
+  "dashboard": {
+    "welcome": "Welcome"
+  }
+}
