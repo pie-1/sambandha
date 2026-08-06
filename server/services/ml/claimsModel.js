@@ -12,6 +12,7 @@ const {
   mae,
 } = require('./core');
 const { buildClaimRecords } = require('./data');
+const HealthRecord = require('../../models/HealthRecord');
 
 const FEATURES = [
   { key: 'age', label: 'Age (years)' },
@@ -24,8 +25,26 @@ const FEATURES = [
 
 let _model = null;
 
-function trainModel() {
-  const records = buildClaimRecords();
+async function loadClaimRecords() {
+  try {
+    const rows = await HealthRecord.find({ kind: 'claim' }).lean();
+    if (rows.length > 0) return rows;
+    console.warn('[ml] No claim records in DB — using embedded generator. Run: npm run seed:sim');
+  } catch (err) {
+    console.warn(`[ml] DB unavailable for claim records (${err.message}) — using embedded generator.`);
+  }
+  return buildClaimRecords();
+}
+
+async function ensureModel() {
+  if (!_model) {
+    const records = await loadClaimRecords();
+    _model = trainModel(records);
+  }
+  return _model;
+}
+
+function trainModel(records = buildClaimRecords()) {
   const X = records.map((r) => FEATURES.map((f) => r[f.key]));
   const y = records.map((r) => r.claim);
 
@@ -60,8 +79,8 @@ function getModel() {
   return _model;
 }
 
-function predictClaims(inputs) {
-  const m = getModel();
+async function predictClaims(inputs) {
+  const m = await ensureModel();
   const x = FEATURES.map((f, j) => (inputs[f.key] - m.means[j]) / m.stds[j]);
   const predicted = m.theta[0] + x.reduce((sum, v, j) => sum + v * m.theta[j + 1], 0);
 
@@ -97,6 +116,6 @@ function predictClaims(inputs) {
 
 module.exports = {
   FEATURES,
-  getModel,
+  getModel: ensureModel,
   predictClaims,
 };

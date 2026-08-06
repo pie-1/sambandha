@@ -113,9 +113,9 @@ async function simulateHealthPolicy({ draftId, inputs }) {
   });
   indicators.budget = budget;
 
-  const success = predictPolicySuccess(indicators);
-  const impact = analyzeBudgetImpact(province, budget);
-  const claims = predictClaims({
+  const success = await predictPolicySuccess(indicators);
+  const impact = await analyzeBudgetImpact(province, budget);
+  const claims = await predictClaims({
     age: +inputs?.age || 35,
     familySize: +inputs?.familySize || 4,
     incomeBand: +inputs?.incomeBand || 2,

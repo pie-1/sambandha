@@ -8,7 +8,7 @@
  */
 
 const Draft = require('../models/Draft');
-const { runSimulation, buildInsights, computeSectorTrend, SOURCES } = require('./simulationModel');
+const { runSimulation, buildInsights, computeSectorTrend, computeAggregates, SOURCES } = require('./simulationModel');
 const { resolveSimulationInputs } = require('../utils/simulationMappings');
 const { simulateHealthPolicy } = require('./healthModel');
 const { collectDraftInsights } = require('./liveInsights');
@@ -27,14 +27,19 @@ const simulatePolicyImpact = async ({ draftId, province, sectorName, budget, pro
   }
 
   const inputs = resolveSimulationInputs({ province, sectorName, budget, draft });
-  const result = runSimulation(inputs.province, inputs.sectorName, inputs.budget);
+  const result = await runSimulation(inputs.province, inputs.sectorName, inputs.budget);
   const insights = buildInsights(inputs.province, inputs.sectorName, result);
+  const [trend, aggregates] = await Promise.all([
+    computeSectorTrend(inputs.sectorName),
+    computeAggregates(inputs.sectorName),
+  ]);
   const historical = {
     datasetSize: result.datasetSize,
     period: '2078/79–2080/81',
     sectorAvg: result.sectorAvg,
     provinceBenchmark: result.provinceBenchmark,
-    trend: computeSectorTrend(inputs.sectorName),
+    trend,
+    aggregates,
   };
 
   const [live, health] = await Promise.all([

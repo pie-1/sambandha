@@ -127,9 +127,9 @@ export default function UnifiedSimulator({
       </div>
 
       <p className="mt-2 max-w-[680px] text-[13.5px] leading-relaxed" style={{ color: C.muted }}>
-        Benchmarks a budget against historical provincial capital projects and — when linked to a draft —
-        folds in the community&apos;s own comments and votes. Health &amp; Nutrition runs the trained health ML
-        models as well.
+        {draftId
+          ? `Evaluates this draft's ${sector.name} allocation against historical provincial capital projects${isHealth ? ', runs the trained health ML models' : ''}, and folds in the community's own comments and votes.`
+          : 'Benchmarks a budget against historical provincial capital projects. Health &amp; Nutrition also runs the trained health ML models. Link a draft to fold in live community consensus.'}
       </p>
 
       <div className="mt-6 grid items-start gap-5 lg:grid-cols-[320px_1fr]">
@@ -158,27 +158,41 @@ export default function UnifiedSimulator({
           </div>
 
           <FieldLabel>Sector</FieldLabel>
-          <div className="mb-[18px] flex flex-col gap-1">
-            {SECTORS.map((s, i) => (
-              <button
-                key={s.name}
-                type="button"
-                onClick={() => {
-                  setSectorIdx(i);
-                  setBudget(clamp(budget, s.min, s.max));
-                  resetResult();
-                }}
-                className="rounded-md px-2.5 py-1.5 text-left text-[12.5px] transition"
-                style={{
-                  border: `1px solid ${i === sectorIdx ? C.gold : C.line}`,
-                  background: i === sectorIdx ? 'rgba(217,164,65,0.14)' : 'transparent',
-                  color: i === sectorIdx ? C.gold : C.parchment,
-                }}
-              >
-                {s.icon} {s.name}
-              </button>
-            ))}
-          </div>
+          {draftId ? (
+            <div
+              className="mb-[18px] flex items-center justify-between rounded-md px-2.5 py-2"
+              style={{ border: `1px solid ${C.gold}`, background: 'rgba(217,164,65,0.14)' }}
+            >
+              <span className="text-[12.5px]" style={{ color: C.gold }}>
+                {sector.icon} {sector.name}
+              </span>
+              <span className="font-mono text-[10px] uppercase tracking-wider" style={{ color: C.muted }}>
+                from draft
+              </span>
+            </div>
+          ) : (
+            <div className="mb-[18px] flex flex-col gap-1">
+              {SECTORS.map((s, i) => (
+                <button
+                  key={s.name}
+                  type="button"
+                  onClick={() => {
+                    setSectorIdx(i);
+                    setBudget(clamp(budget, s.min, s.max));
+                    resetResult();
+                  }}
+                  className="rounded-md px-2.5 py-1.5 text-left text-[12.5px] transition"
+                  style={{
+                    border: `1px solid ${i === sectorIdx ? C.gold : C.line}`,
+                    background: i === sectorIdx ? 'rgba(217,164,65,0.14)' : 'transparent',
+                    color: i === sectorIdx ? C.gold : C.parchment,
+                  }}
+                >
+                  {s.icon} {s.name}
+                </button>
+              ))}
+            </div>
+          )}
 
           <FieldLabel>Budget — NPR crore</FieldLabel>
           <div className="mb-1 flex items-center gap-2.5">

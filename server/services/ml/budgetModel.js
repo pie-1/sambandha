@@ -17,8 +17,20 @@ const {
   clamp,
 } = require('./core');
 const { buildBudgetOutcomeRecords, HEALTH_PROGRAMS, PROVINCE_HEALTH } = require('./data');
+const HealthRecord = require('../../models/HealthRecord');
 
 let _programModels = null;
+
+async function loadBudgetRecords() {
+  try {
+    const rows = await HealthRecord.find({ kind: 'budget' }).lean();
+    if (rows.length > 0) return rows;
+    console.warn('[ml] No budget-outcome records in DB — using embedded generator. Run: npm run seed:sim');
+  } catch (err) {
+    console.warn(`[ml] DB unavailable for budget records (${err.message}) — using embedded generator.`);
+  }
+  return buildBudgetOutcomeRecords();
+}
 
 function trainProgramModel(records) {
   const X = records.map((r) => [r.budget, r.remoteShare]);
@@ -47,8 +59,8 @@ function trainProgramModel(records) {
   };
 }
 
-function trainAll() {
-  const allRecords = buildBudgetOutcomeRecords();
+function trainAll(records = buildBudgetOutcomeRecords()) {
+  const allRecords = records;
   const programModels = HEALTH_PROGRAMS.map((program) => {
     const records = allRecords.filter((r) => r.program === program.name);
     return { program: program.name, ...trainProgramModel(records) };
@@ -69,17 +81,20 @@ function trainAll() {
   };
 }
 
-function getModels() {
-  if (!_programModels) _programModels = trainAll();
+async function ensureModels() {
+  if (!_programModels) {
+    const records = await loadBudgetRecords();
+    _programModels = trainAll(records);
+  }
   return _programModels;
 }
 
-function projectCoverage(program, budget, province) {
+async function projectCoverage(program, budget, province) {
   const base = PROVINCE_HEALTH[province];
   const baselineCoverage = base.coverage;
   const remoteShare = base.remote;
 
-  const { programModels, models } = getModels();
+  const { programModels } = await ensureModels();
   const pm = programModels.find((m) => m.program === program.name);
 
   const x = [budget, remoteShare].map((v, j) => (v - pm.means[j]) / pm.stds[j]);
@@ -100,25 +115,27 @@ function projectCoverage(program, budget, province) {
 /**
  * Analyze how a budget should be allocated across health programs.
  */
-function analyzeBudgetImpact(province, budget) {
-  const { models } = getModels();
-  const programs = HEALTH_PROGRAMS.map((program) => {
-    const projection = projectCoverage(program, budget, province);
+async function analyzeBudgetImpact(province, budget) {
+  const { models } = await ensureModels();
+  const programs = HEALTH_PROGRAMS.map(async (program) => {
+    const projection = await projectCoverage(program, budget, province);
     return {
       ...projection,
       gain: +(projection.projectedCoverage - projection.currentCoverage).toFixed(1),
     };
-  }).sort((a, b) => b.gain - a.gain);
+  });
+  const resolved = await Promise.all(programs);
+  resolved.sort((a, b) => b.gain - a.gain);
 
   return {
-    programs,
-    best: programs[0],
+    programs: resolved,
+    best: resolved[0],
     model: models,
   };
 }
 
 module.exports = {
-  getModels,
+  getModels: ensureModels,
   analyzeBudgetImpact,
   projectCoverage,
 };

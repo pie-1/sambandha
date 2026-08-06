@@ -75,8 +75,9 @@ runs) that produces a complete six-section report in one run:
 1. **Projected outcomes** — estimated jobs, spending efficiency, completion
    likelihood and overrun risk, benchmarked against sector-wide historical averages
 2. **Historical context** — execution trends (FY 2078/79–2080/81) for the sector,
-   nearest-neighbour precedents, and the draft budget as a share of the province's
-   capital budget (FY 2080/81)
+   aggregation donut charts (delivery status mix, capital budget by sector and by
+   province), nearest-neighbour precedents, and the draft budget as a share of the
+   province's capital budget (FY 2080/81)
 3. **Community consensus** — live participation data for the linked draft: expert
    comments (role counts + Nepali/English sentiment), public approve/disapprove
    votes, district breakdown, and an overall consensus label
@@ -88,9 +89,31 @@ runs) that produces a complete six-section report in one run:
 6. **Detailed insights** — strengths, risks and recommendations, plus a narrative
    report summary
 
+Draft-linked runs are **sector-bound**: the simulation always evaluates the
+draft's own sector (enforced client-side and server-side), so a health draft
+cannot be run against roads precedents. Standalone lab runs remain free-form.
+
 All estimates are calibrated to published Nepali data — MoF Red Book /
 provincial budget statements, NDHS 2022, NHSS-IP and CBS statistics — and the
 UI attributes every estimate to its reference dataset and sources.
+
+### 🗄️ Simulation Data
+The engines run on real MongoDB collections, seeded from the deterministic
+generators (which remain as a dev fallback when the collections are empty):
+
+```bash
+cd server && npm run seed:sim -- --reset
+```
+
+Seeds two collections:
+- `projects` — 224 provincial capital projects (FY 2078/79–2080/81),
+  anchored to provincial capital budgets (MoF Red Book FY 2080/81)
+- `healthrecords` — 822 health ML training records (198 policy-success,
+  224 budget-outcome, 400 claims) anchored to NDHS 2022 / NHIF / CBS
+
+The policy-impact engine reads its nearest-neighbour ledger from `projects`
+and the ML models train on `healthrecords` at first use — so model metadata
+(e.g. `sampleSize`) reflects exactly what is stored.
 
 ### 🌐 Internationalization
 - English/Nepali language toggle
@@ -227,10 +250,15 @@ net start MongoDB
 # From root directory
 npm run seed
 
-# OR from server directory
+# From server directory
 cd server
-npm run seed
+npm run seed            # app demo data (users, drafts, comments, feedback)
+npm run seed:sim        # simulation data (projects ledger + health ML records)
 ```
+
+The simulation engines fall back to embedded generators when `projects` /
+`healthrecords` are empty, so `seed:sim` is optional in development — but run
+it for DB-backed authenticity in demos and presentations.
 
 ### Step 6: Start the Application
 

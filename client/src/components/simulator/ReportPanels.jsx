@@ -7,6 +7,9 @@ import {
   Line,
   BarChart,
   Bar,
+  PieChart,
+  Pie,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -109,6 +112,55 @@ function TrendChip({ label, trend }) {
   );
 }
 
+const STATUS_COLORS = { Completed: C.green, Ongoing: C.amber, Delayed: C.red };
+const PALETTE = ['#D9A441', '#4C9A6A', '#C8323C', '#4A5580', '#7BA3C9', '#B96BA4', '#8E7B4F', '#5E8C61'];
+
+function DonutChart({ title, sub, data, colors, labelKey = 'name', valueKey = 'value' }) {
+  const total = data.reduce((s, d) => s + d[valueKey], 0);
+  return (
+    <div className="min-w-0 rounded-[10px] px-3 pb-3 pt-2.5" style={{ background: C.bgCard, border: `1px solid ${C.line}` }}>
+      <div className="mb-1 px-1 text-[11.5px] font-semibold" style={{ color: C.parchment }}>
+        {title}
+      </div>
+      <div className="flex items-center gap-1.5">
+        <div className="h-[120px] w-[46%] shrink-0">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie data={data} dataKey={valueKey} nameKey={labelKey} innerRadius={30} outerRadius={52} paddingAngle={2} stroke={C.bgCard}>
+                {data.map((entry, i) => (
+                  <Cell key={`cell-${i}`} fill={Array.isArray(colors) ? colors[i % colors.length] : colors[entry[labelKey]] || C.muted} />
+                ))}
+              </Pie>
+              <Tooltip
+                contentStyle={{ background: C.bgCard, border: `1px solid ${C.line}`, borderRadius: 6, fontSize: 12 }}
+                labelStyle={{ color: C.parchment }}
+                formatter={(value, name) => [typeof value === 'number' ? value.toLocaleString('en-IN') : value, name]}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="min-w-0 flex-1">
+          {data.map((d, i) => (
+            <div key={d[labelKey]} className="mb-1 flex items-center gap-1.5 text-[10.5px]">
+              <span
+                className="h-2 w-2 shrink-0 rounded-full"
+                style={{ background: Array.isArray(colors) ? colors[i % colors.length] : colors[d[labelKey]] || C.muted }}
+              />
+              <span className="truncate" style={{ color: C.muted }}>{d[labelKey]}</span>
+              <span className="ml-auto shrink-0 font-mono" style={{ color: C.parchment }}>
+                {Math.round((d[valueKey] / total) * 100)}%
+              </span>
+            </div>
+          ))}
+          {sub && (
+            <div className="mt-1.5 truncate text-[10px]" style={{ color: C.muted }}>{sub}</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function HistoricalPanel({ historical, projections }) {
   const chartData = [
     { name: 'Efficiency', Draft: projections.efficiency, 'Sector avg': historical.sectorAvg.efficiency },
@@ -116,6 +168,7 @@ export function HistoricalPanel({ historical, projections }) {
     { name: 'Overrun risk', Draft: projections.overrun, 'Sector avg': historical.sectorAvg.overrun },
   ];
   const t = historical.trend;
+  const agg = historical.aggregates || { statusBreakdown: [], sectorShare: [], provinceShare: [] };
 
   return (
     <Panel className="mb-5">
@@ -168,6 +221,27 @@ export function HistoricalPanel({ historical, projections }) {
             </ResponsiveContainer>
           </div>
         </div>
+      </div>
+
+      <div className="mb-3 grid gap-2.5 md:grid-cols-3">
+        <DonutChart
+          title="Delivery status mix"
+          sub={`${agg.statusBreakdown.reduce((s, d) => s + d.value, 0) || historical.datasetSize} ${historical.period} sector projects`}
+          data={agg.statusBreakdown}
+          colors={STATUS_COLORS}
+        />
+        <DonutChart
+          title="Capital budget by sector"
+          sub={`FY ${historical.period.split('–')[1]} · Rs ${(agg.totalCapital || 0).toLocaleString('en-IN')} crore total`}
+          data={agg.sectorShare}
+          colors={PALETTE}
+        />
+        <DonutChart
+          title="Capital budget by province"
+          sub="provincial capital allocations, FY 2080/81"
+          data={agg.provinceShare}
+          colors={PALETTE}
+        />
       </div>
 
       <div className="text-[11.5px] leading-relaxed" style={{ color: C.muted }}>

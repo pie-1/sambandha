@@ -13,6 +13,7 @@ const {
   auc,
 } = require('./core');
 const { buildHealthPolicyRecords, HEALTH_PROGRAMS } = require('./data');
+const HealthRecord = require('../../models/HealthRecord');
 
 function mulberry32(seed) {
   return function () {
@@ -76,8 +77,7 @@ function holdoutEvaluation(records) {
   };
 }
 
-function trainModel() {
-  const records = buildHealthPolicyRecords();
+function trainModel(records = buildHealthPolicyRecords()) {
   const X = records.map((r) => FEATURES.map((f) => r[f.key]));
   const y = records.map((r) => r.success);
 
@@ -114,16 +114,34 @@ function trainModel() {
   return _model;
 }
 
-function getModel() {
-  if (!_model) _model = trainModel();
+/**
+ * Load policy-success records — from MongoDB when seeded (`npm run seed:sim`),
+ * otherwise from the embedded deterministic generator.
+ */
+async function loadPolicyRecords() {
+  try {
+    const rows = await HealthRecord.find({ kind: 'policy' }).lean();
+    if (rows.length > 0) return rows;
+    console.warn('[ml] No health policy records in DB — using embedded generator. Run: npm run seed:sim');
+  } catch (err) {
+    console.warn(`[ml] DB unavailable for health records (${err.message}) — using embedded generator.`);
+  }
+  return buildHealthPolicyRecords();
+}
+
+async function ensureModel() {
+  if (!_model) {
+    const records = await loadPolicyRecords();
+    _model = trainModel(records);
+  }
   return _model;
 }
 
 /**
  * Predict the success probability for a health policy given its indicators.
  */
-function predictPolicySuccess(inputs) {
-  const m = getModel();
+async function predictPolicySuccess(inputs) {
+  const m = await ensureModel();
   const x = FEATURES.map((f, j) => (inputs[f.key] - m.means[j]) / m.stds[j]);
   const z = m.theta[0] + x.reduce((sum, v, j) => sum + v * m.theta[j + 1], 0);
   const probability = sigmoid(z);
@@ -160,6 +178,6 @@ function predictPolicySuccess(inputs) {
 module.exports = {
   FEATURES,
   HEALTH_PROGRAMS,
-  getModel,
+  getModel: ensureModel,
   predictPolicySuccess,
 };

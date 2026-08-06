@@ -15,6 +15,8 @@
  * across restarts; the seed only adds realistic within-anchor variance.
  */
 
+const Project = require('../models/Project');
+
 const SOURCES = [
   {
     name: 'Ministry of Finance — Red Book & provincial budget statements, FY 2080/81',
@@ -136,8 +138,32 @@ function buildDataset() {
 
 const DATASET = buildDataset();
 
-function runSimulation(province, sectorName, budget) {
-  const pool = DATASET.filter((d) => d.sector === sectorName);
+/**
+ * Load the project ledger — from MongoDB when seeded (`npm run seed:sim`),
+ * otherwise from the embedded deterministic generator so development and
+ * demos work without a seed step. Cached after first load.
+ */
+let _dataset = null;
+
+async function loadDataset() {
+  if (_dataset) return _dataset;
+  try {
+    const rows = await Project.find().lean();
+    if (rows.length > 0) {
+      _dataset = rows;
+      return _dataset;
+    }
+    console.warn('[simulation] No Project records in DB — using embedded ledger. Run: npm run seed:sim');
+  } catch (err) {
+    console.warn(`[simulation] DB unavailable for ledger (${err.message}) — using embedded generator.`);
+  }
+  _dataset = DATASET;
+  return _dataset;
+}
+
+async function runSimulation(province, sectorName, budget) {
+  const dataset = await loadDataset();
+  const pool = dataset.filter((d) => d.sector === sectorName);
   const logB = Math.log(budget);
 
   const scored = pool.map((d) => {
@@ -164,7 +190,7 @@ function runSimulation(province, sectorName, budget) {
   let confidence = Math.round(100 - avgDistance * 140);
   confidence = clamp(confidence + sameProvinceSector * 6, 20, 96);
 
-  const sectorAll = DATASET.filter((d) => d.sector === sectorName);
+  const sectorAll = dataset.filter((d) => d.sector === sectorName);
   const sectorAvg = {
     efficiency: Math.round(sectorAll.reduce((s, d) => s + d.efficiency, 0) / sectorAll.length),
     completion: Math.round(sectorAll.reduce((s, d) => s + d.completion, 0) / sectorAll.length),
@@ -180,7 +206,7 @@ function runSimulation(province, sectorName, budget) {
     matches: matches.slice(0, 4).map(({ distance, budgetAllocated, ...rest }) => rest),
     sectorAvg,
     sameProvinceSector,
-    datasetSize: DATASET.length,
+    datasetSize: dataset.length,
     sources: SOURCES,
     provinceBenchmark: {
       province,
@@ -191,8 +217,9 @@ function runSimulation(province, sectorName, budget) {
   };
 }
 
-function computeSectorTrend(sectorName) {
-  const rows = DATASET.filter((d) => d.sector === sectorName);
+async function computeSectorTrend(sectorName) {
+  const dataset = await loadDataset();
+  const rows = dataset.filter((d) => d.sector === sectorName);
   const byYear = FISCAL_YEARS.map((year) => {
     const ys = rows.filter((r) => r.year === year);
     const avg = (key) => Math.round(ys.reduce((s, r) => s + r[key], 0) / ys.length);
@@ -222,6 +249,38 @@ function computeSectorTrend(sectorName) {
     efficiency: trend('efficiency', true),
     overrun: trend('overrun', false),
   };
+}
+
+/**
+ * Historical aggregation insights from the project ledger:
+ *   - statusBreakdown — delivery status mix for a sector (Completed/Ongoing/Delayed)
+ *   - sectorShare     — share of total provincial capital budgets by sector (FY 2080/81)
+ *   - provinceShare   — total capital budget by province (FY 2080/81, NPR crore)
+ */
+async function computeAggregates(sectorName) {
+  const dataset = await loadDataset();
+  const sectorRows = dataset.filter((d) => d.sector === sectorName);
+
+  const count = (fn) => sectorRows.filter(fn).length;
+  const statusBreakdown = [
+    { name: 'Completed', value: count((d) => d.status === 'Completed') },
+    { name: 'Ongoing', value: count((d) => d.status === 'Ongoing') },
+    { name: 'Delayed', value: count((d) => d.status === 'Delayed') },
+  ];
+
+  const totalCapital = PROVINCES.reduce((s, p) => s + PROVINCE_BUDGETS[p], 0);
+  const sectorShare = SECTORS.map((s) => ({
+    name: s.name,
+    icon: s.icon,
+    value: Math.round(totalCapital * s.share),
+  }));
+
+  const provinceShare = PROVINCES.map((p) => ({
+    name: p,
+    value: PROVINCE_BUDGETS[p],
+  }));
+
+  return { statusBreakdown, sectorShare, provinceShare, totalCapital };
 }
 
 function buildInsights(province, sectorName, result) {
@@ -318,9 +377,11 @@ module.exports = {
   PROVINCE_BUDGETS,
   SOURCES,
   FISCAL_YEARS,
+  loadDataset,
   runSimulation,
   buildInsights,
   computeSectorTrend,
+  computeAggregates,
   getSectorByName,
   clamp,
 };
