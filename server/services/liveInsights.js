@@ -20,7 +20,10 @@ const NEGATIVE_WORDS = [
   'issue', 'issues', 'problem', 'problems', 'fail', 'fails', 'reject', 'worried',
   'against', 'unsustainable', 'delay', 'delays', 'costly', 'gap', 'lacking',
   'unclear', 'missing', 'weak', 'difficult', 'expensive', 'exclude', 'excludes',
-  'चिन्ता', 'असहमत', 'जोखिम', 'समस्या', 'कठिन',
+  'bad', 'badly', 'terrible', 'awful', 'horrible', 'worst', 'waste', 'wasteful',
+  'useless', 'pointless', 'unacceptable', 'disaster', 'hate', 'dislike',
+  'not good', 'no good', 'ineffective', 'wrong',
+  'चिन्ता', 'असहमत', 'जोखिम', 'समस्या', 'कठिन', 'खराब',
 ];
 
 function analyzeSentiment(text) {
@@ -67,9 +70,17 @@ async function collectDraftInsights(draft) {
   }));
 
   const totalScore = commentSentiment.reduce((s, c) => s + c.score, 0);
-  const sentimentLabel = analyzeSentiment(
-    commentSentiment.map((c) => c.text).join(' ')
-  ).label;
+  const positiveCount = commentSentiment.filter((c) => c.score > 0).length;
+  const negativeCount = commentSentiment.filter((c) => c.score < 0).length;
+
+  const sentimentLabel =
+    negativeCount === 0 && positiveCount === 0
+      ? 'Neutral'
+      : negativeCount > positiveCount
+        ? 'Critical'
+        : positiveCount > negativeCount
+          ? 'Supportive'
+          : 'Mixed sentiment';
 
   const approve = feedbacks.filter((f) => f.reaction === 'approve').length;
   const disapprove = feedbacks.length - approve;
@@ -99,8 +110,8 @@ async function collectDraftInsights(draft) {
       sentiment: {
         label: sentimentLabel,
         score: totalScore,
-        positive: commentSentiment.filter((c) => c.positive > c.negative).length,
-        negative: commentSentiment.filter((c) => c.negative > c.positive).length,
+        positive: positiveCount,
+        negative: negativeCount,
       },
     },
     feedback: {

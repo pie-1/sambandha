@@ -10,6 +10,8 @@
     "seed": "node seed/seed.js",
     "seed:sim": "node seed/seedSimulation.js",
     "seed:priorities": "node seed/seedPriorities.js",
+    "seed:engagement": "node seed/seedEngagement.js",
+    "ml:test": "node scripts/mlAuthenticity.js",
     "seed:reset": "node seed/seed.js --reset"
 
   },
