@@ -16,6 +16,7 @@ const simulatorRoutes = require("./routes/simulatorRoutes");
 const healthMlRoutes = require("./routes/healthMlRoutes");
 const priorityRoutes = require("./routes/priorityRoutes");
 const projectRoutes = require("./routes/projectRoutes");
+const { warmUp: warmUpPythonMl } = require("./services/ml/pythonBridge");
 
 const app = express();
 
@@ -67,6 +68,7 @@ mongoose
     app.listen(PORT, () => {
       console.log(` Server running on port ${PORT}`);
       console.log(` http://localhost:${PORT}/api`);
+      warmUpPythonMl();
     });
   })
   .catch((err) => {

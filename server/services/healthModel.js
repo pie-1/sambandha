@@ -12,9 +12,7 @@
 const Draft = require('../models/Draft');
 const { districtToProvince } = require('../utils/simulationMappings');
 const { PROVINCES, PROVINCE_HEALTH, HEALTH_PROGRAMS, SOURCES } = require('./ml/data');
-const { predictPolicySuccess } = require('./ml/logisticRegression');
-const { analyzeBudgetImpact } = require('./ml/budgetModel');
-const { predictClaims } = require('./ml/claimsModel');
+const { predictPolicySuccess, analyzeBudgetImpact, predictClaims } = require('./ml/pythonBridge');
 const { clamp } = require('./ml/core');
 
 const PROGRAM_KEYWORDS = [
