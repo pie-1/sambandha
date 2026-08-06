@@ -2,7 +2,7 @@
  * Feedback Button Component
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const FeedbackButton = ({ onFeedback, isLoading }) => {
   const [selected, setSelected] = useState(null);

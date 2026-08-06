@@ -33,6 +33,10 @@ const API = {
   },
   SIMULATOR: '/simulate',
   SIMULATOR_METADATA: '/simulate/metadata',
+  ML_HEALTH: {
+    SIMULATE: '/ml/health/simulate',
+    METADATA: '/ml/health/metadata',
+  },
 };
 
 export default API;

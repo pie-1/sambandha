@@ -3,10 +3,9 @@
  * With proper error handling and validation
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 
 const Register = () => {
@@ -21,7 +20,6 @@ const Register = () => {
   const [errors, setErrors] = useState({});
   const { register } = useAuth();
   const navigate = useNavigate();
-  const { t } = useTranslation();
 
   const validateForm = () => {
     const newErrors = {};
@@ -79,7 +77,7 @@ const Register = () => {
           toast.error(result.error || 'Registration failed. Please try again.');
         }
       }
-    } catch (error) {
+    } catch {
       toast.error('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
@@ -91,7 +89,7 @@ const Register = () => {
       <div className="card">
         <div className="text-center mb-6">
           <h1 className="text-3xl font-serif text-bodhi-navy">Create Account</h1>
-          <p className="text-sm text-gray-500 mt-1">Join Sambandh and be part of Nepal's policy-making</p>
+          <p className="text-sm text-gray-500 mt-1">Join Sambandh and be part of Nepal&apos;s policy-making</p>
         </div>
         
         <form onSubmit={handleSubmit}>

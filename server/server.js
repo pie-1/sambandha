@@ -13,6 +13,7 @@ const commentRoutes = require("./routes/commentRoutes");
 const feedbackRoutes = require("./routes/feedbackRoutes");
 const meetingRoutes = require("./routes/meetingRoutes");
 const simulatorRoutes = require("./routes/simulatorRoutes");
+const healthMlRoutes = require("./routes/healthMlRoutes");
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use("/api/drafts/:draftId/comments", commentRoutes);
 app.use("/api/drafts/:draftId/feedback", feedbackRoutes);
 app.use("/api/meetings", meetingRoutes);
 app.use("/api/simulate", simulatorRoutes);
+app.use("/api/ml/health", healthMlRoutes);
 
 
 app.use((req, res) => {

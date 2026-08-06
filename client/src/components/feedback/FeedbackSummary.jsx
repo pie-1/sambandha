@@ -2,7 +2,6 @@
  * Feedback Summary Component
  */
 
-import React from 'react';
 
 const FeedbackSummary = ({ summary }) => {
   if (!summary) return null;

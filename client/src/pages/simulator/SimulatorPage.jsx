@@ -1,17 +1,19 @@
 /**
- * Simulator Page — draft-linked or standalone
+ * Simulator Page — unified single-page simulation lab.
+ * Draft-linked or standalone; the health sector can be pre-selected
+ * via ?model=health (legacy deep links).
  */
 
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDrafts } from '../../hooks/useDrafts';
-import PolicyImpactSimulator from '../../components/simulator/PolicyImpactSimulator';
+import UnifiedSimulator from '../../components/simulator/UnifiedSimulator';
 import { resolveInitialInputsFromDraft } from '../../lib/simulation/mappings';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const SimulatorPage = ({ standalone = false }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { useDraft } = useDrafts();
   const { data: draft, isLoading } = useDraft(standalone ? undefined : id);
 
@@ -21,19 +23,18 @@ const SimulatorPage = ({ standalone = false }) => {
   }
 
   const initial = resolveInitialInputsFromDraft(standalone ? null : draft);
+  const preferHealth =
+    searchParams.get('model') === 'health' || (!standalone && draft?.sector === 'health');
 
   return (
-    <PolicyImpactSimulator
+    <UnifiedSimulator
       draftId={standalone ? null : id}
       draftTitle={standalone ? null : draft.title}
       initialProvince={initial.province}
       initialSectorIdx={initial.sectorIdx}
       initialBudget={initial.budget}
-      onBack={
-        standalone
-          ? () => navigate('/dashboard')
-          : () => navigate(`/drafts/${id}`)
-      }
+      preferHealth={preferHealth}
+      onBack={standalone ? () => navigate('/dashboard') : () => navigate(`/drafts/${id}`)}
     />
   );
 };

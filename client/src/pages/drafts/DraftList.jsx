@@ -2,7 +2,7 @@
  * Draft List Page
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useDrafts } from '../../hooks/useDrafts';
 import DraftList from '../../components/drafts/DraftList';
 import { useTranslation } from 'react-i18next';

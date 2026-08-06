@@ -2,7 +2,7 @@
  * Comment Thread Component
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { format } from 'date-fns';
 

@@ -2,15 +2,13 @@
  * Draft Upload Page
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDrafts } from '../../hooks/useDrafts';
-import { useAuth } from '../../hooks/useAuth';
 import toast from 'react-hot-toast';
 
 const DraftUpload = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { createDraft } = useDrafts();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({

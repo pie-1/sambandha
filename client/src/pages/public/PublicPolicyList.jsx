@@ -3,7 +3,7 @@
  * Browse all policies
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDrafts } from '../../hooks/useDrafts';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
