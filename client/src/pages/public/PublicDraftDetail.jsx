@@ -13,7 +13,7 @@ const PublicDraftDetail = () => {
   const { id } = useParams();
   const { useDraft } = useDrafts();
   const { data: draft, isLoading } = useDraft(id);
-  const { summary } = useFeedback(id);
+  const { summary, byDistrict, districtsLoading } = useFeedback(id);
 
   if (isLoading) return <LoadingSpinner />;
   if (!draft) return (
@@ -80,7 +80,7 @@ const PublicDraftDetail = () => {
       {draft.status === 'finalized' && (
         <div className="card">
           <h3 className="font-serif text-lg text-bodhi-navy mb-4">🗳️ Public Feedback</h3>
-          <FeedbackSummary summary={summary} />
+          <FeedbackSummary summary={summary} byDistrict={byDistrict} districtsLoading={districtsLoading} />
           <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
             <p className="text-sm text-gray-600">
               💡 Want to vote on this policy? 

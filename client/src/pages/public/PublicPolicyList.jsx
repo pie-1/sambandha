@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDrafts } from '../../hooks/useDrafts';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import PriorityBoard from '../../components/priorities/PriorityBoard';
 
 const PublicPolicyList = () => {
   const [filters, setFilters] = useState({});
@@ -30,8 +31,10 @@ const PublicPolicyList = () => {
         </p>
       </div>
 
-      {/* Filters */}
-      <div className="card mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          {/* Filters */}
+          <div className="card mb-6">
         <div className="flex flex-wrap items-center gap-4">
           <span className="text-sm font-medium text-bodhi-navy">Filter by:</span>
           <select
@@ -114,6 +117,13 @@ const PublicPolicyList = () => {
           ))}
         </div>
       )}
+        </div>
+
+        {/* District priorities board */}
+        <div>
+          <PriorityBoard />
+        </div>
+      </div>
     </div>
   );
 };

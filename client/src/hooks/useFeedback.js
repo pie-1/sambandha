@@ -19,6 +19,15 @@ export const useFeedback = (draftId) => {
     enabled: !!draftId,
   });
 
+  const { data: byDistrict = [], isLoading: districtsLoading } = useQuery({
+    queryKey: ['feedback-districts', draftId],
+    queryFn: async () => {
+      const { data } = await axiosClient.get(API.FEEDBACK_DISTRICTS(draftId));
+      return data.byDistrict || [];
+    },
+    enabled: !!draftId,
+  });
+
   const submitFeedback = useMutation({
     mutationFn: async (feedbackData) => {
       const res = await axiosClient.post(API.FEEDBACK.SUBMIT(draftId), feedbackData);
@@ -31,5 +40,5 @@ export const useFeedback = (draftId) => {
     onError: () => toast.error('Failed to submit feedback'),
   });
 
-  return { summary, summaryLoading, submitFeedback };
+  return { summary, summaryLoading, byDistrict, districtsLoading, submitFeedback };
 };

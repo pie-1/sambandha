@@ -40,6 +40,9 @@ const Navbar = () => {
             <Link to="/policies" className={`text-sm transition ${isActive('/policies')}`}>
               Policies
             </Link>
+            <Link to="/tracking" className={`text-sm transition ${isActive('/tracking')}`}>
+              Tracking
+            </Link>
             {user && (
               <Link to="/dashboard" className={`text-sm transition ${isActive('/dashboard')}`}>
                 Dashboard
@@ -98,6 +101,9 @@ const Navbar = () => {
           </Link>
           <Link to="/policies" className={`text-xs transition ${isActive('/policies')}`}>
             Policies
+          </Link>
+          <Link to="/tracking" className={`text-xs transition ${isActive('/tracking')}`}>
+            Tracking
           </Link>
           {user && (
             <Link to="/dashboard" className={`text-xs transition ${isActive('/dashboard')}`}>

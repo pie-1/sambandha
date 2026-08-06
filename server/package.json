@@ -9,6 +9,7 @@
     "start": "node server.js",
     "seed": "node seed/seed.js",
     "seed:sim": "node seed/seedSimulation.js",
+    "seed:priorities": "node seed/seedPriorities.js",
     "seed:reset": "node seed/seed.js --reset"
 
   },

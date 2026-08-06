@@ -12,6 +12,7 @@ import ProtectedRoute from './components/layout/ProtectedRoute';
 import Home from './pages/public/Home';
 import PublicPolicyList from './pages/public/PublicPolicyList';
 import PublicDraftDetail from './pages/public/PublicDraftDetail';
+import ProjectTracking from './pages/public/ProjectTracking';
 
 // Auth Pages
 import Login from './pages/auth/Login';
@@ -50,6 +51,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/policies" element={<PublicPolicyList />} />
           <Route path="/policies/:id" element={<PublicDraftDetail />} />
+          <Route path="/tracking" element={<ProjectTracking />} />
           
           {/* Auth Routes */}
           <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />

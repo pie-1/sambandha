@@ -81,6 +81,46 @@ exports.getFeedbackSummary = async (req, res) => {
   }
 };
 
+exports.getFeedbackSummaryByDistrict = async (req, res) => {
+  try {
+    const { draftId } = req.params;
+
+    const rows = await Feedback.aggregate([
+      { $match: { draftId: new mongoose.Types.ObjectId(draftId) } },
+      {
+        $group: {
+          _id: { district: { $ifNull: ['$district', 'Unknown'] }, reaction: '$reaction' },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { count: -1 } },
+    ]);
+
+    const byDistrict = [];
+    const districtMap = {};
+
+    rows.forEach((row) => {
+      const district = row._id.district;
+      if (!districtMap[district]) {
+        districtMap[district] = { district, approve: 0, disapprove: 0, total: 0 };
+        byDistrict.push(districtMap[district]);
+      }
+      districtMap[district][row._id.reaction] = row.count;
+      districtMap[district].total += row.count;
+    });
+
+    byDistrict.forEach((d) => {
+      if (d.total > 0) d.approvePercentage = Math.round((d.approve / d.total) * 100);
+    });
+
+    byDistrict.sort((a, b) => b.total - a.total);
+
+    res.json({ success: true, byDistrict });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 exports.getFeedback = async (req, res) => {
   try {
     const { draftId } = req.params;

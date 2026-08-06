@@ -15,6 +15,7 @@ const feedbackController = require("../controllers/feedbackController");
 
 router.post("/", verifyToken, requireRole('citizen'), feedbackController.submitFeedback);
 router.get("/summary", verifyToken, feedbackController.getFeedbackSummary);
+router.get("/summary/districts", verifyToken, feedbackController.getFeedbackSummaryByDistrict);
 router.get("/", verifyToken, feedbackController.getFeedback);
 
 module.exports = router;

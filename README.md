@@ -62,6 +62,24 @@
 - One-tap approve/disapprove on finalized policies
 - Real-time sentiment tracking
 - Anonymous feedback with phone verification (mock)
+- **"What neighbors think"** — per-district approve/disapprove breakdown on
+  the feedback summary (no login needed to view on the public policy page)
+
+### 🗳️ District Priorities Board
+On `/policies`, citizens can vote for their top 3 priority sectors (phone +
+district, no login) and watch the live community ranking — overall and
+per-district. One vote per phone; ranked scoring (3/2/1 points).
+
+### 📊 Project Tracking Board
+A public transparency dashboard at `/tracking` (no login required) showing
+every provincial capital project from the seeded `projects` ledger:
+
+- KPI cards (total projects, capital, avg completion, cost overrun, jobs)
+- Status-mix pie, capital by province/sector, sector completion health charts
+- Filterable ledger table (province × sector × status)
+
+Data is sourced from the MoF Red Book and provincial budget statements
+(FY 2078/79–2080/81).
 
 ### 🎥 Live Meetings
 - Integrated video meetings using Jitsi Meet
@@ -434,6 +452,21 @@ sambandh/
 |--------|----------|-------------|---------------|
 | POST | `/api/drafts/:draftId/feedback` | Submit feedback | Citizen only |
 | GET | `/api/drafts/:draftId/feedback/summary` | Get feedback summary | Yes |
+| GET | `/api/drafts/:draftId/feedback/summary/districts` | Get per-district sentiment breakdown | Yes |
+
+### Priority Endpoints (public — no login)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/priorities` | Save/update a citizen priority vote (phone, district, up to 3 sectors) | No |
+| GET | `/api/priorities/ranking?district=` | Community ranking (3/2/1 points), optional district filter | No |
+
+### Project Tracking Endpoints (public — no login)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/projects?province=&sector=&status=&year=` | Filterable project ledger | No |
+| GET | `/api/projects/stats` | Aggregates: totals, status mix, by-province, by-sector | No |
 
 ### Meeting Endpoints
 
@@ -531,7 +564,9 @@ curl -X POST http://localhost:5000/api/drafts/YOUR_DRAFT_ID/feedback \
 
 ### Seed Database
 ```bash
-npm run seed
+npm run seed            # app demo data (users, drafts, comments, feedback)
+npm run seed:sim        # simulation data (projects ledger + health ML records)
+npm run seed:priorities # demo district-priority votes (idempotent, upserts by phone)
 ```
 
 ### Seed Output Example
