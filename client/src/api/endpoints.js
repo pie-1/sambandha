@@ -32,6 +32,7 @@ const API = {
     DELETE: (id) => `/meetings/drafts/${id}`,
   },
   SIMULATOR: '/simulate',
+  SIMULATOR_METADATA: '/simulate/metadata',
 };
 
 export default API;

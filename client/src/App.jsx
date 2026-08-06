@@ -58,6 +58,7 @@ function App() {
             <Route path="/drafts/:id" element={<DraftDetail />} />
             <Route path="/upload" element={<DraftUpload />} />
             <Route path="/feedback" element={<PublicFeedback />} />
+            <Route path="/simulator" element={<SimulatorPage standalone />} />
             <Route path="/drafts/:id/simulate" element={<SimulatorPage />} />
           </Route>
           

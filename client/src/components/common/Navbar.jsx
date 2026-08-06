@@ -49,9 +49,14 @@ const Navbar = () => {
               </Link>
             )}
             {user?.role === 'officer' && (
-              <Link to="/upload" className={`text-sm transition ${isActive('/upload')}`}>
-                Upload
-              </Link>
+              <>
+                <Link to="/upload" className={`text-sm transition ${isActive('/upload')}`}>
+                  Upload
+                </Link>
+                <Link to="/simulator" className={`text-sm transition ${isActive('/simulator')}`}>
+                  Simulator
+                </Link>
+              </>
             )}
             {user?.role === 'citizen' && (
               <Link to="/feedback" className={`text-sm transition ${isActive('/feedback')}`}>
@@ -103,9 +108,14 @@ const Navbar = () => {
             </Link>
           )}
           {user?.role === 'officer' && (
-            <Link to="/upload" className={`text-xs transition ${isActive('/upload')}`}>
-              Upload
-            </Link>
+            <>
+              <Link to="/upload" className={`text-xs transition ${isActive('/upload')}`}>
+                Upload
+              </Link>
+              <Link to="/simulator" className={`text-xs transition ${isActive('/simulator')}`}>
+                Simulator
+              </Link>
+            </>
           )}
           {user?.role === 'citizen' && (
             <Link to="/feedback" className={`text-xs transition ${isActive('/feedback')}`}>

@@ -210,3 +210,33 @@
     padding-right: 2rem;
   }
 }
+
+/* ============================================
+   POLICY IMPACT SIMULATOR
+   ============================================ */
+.simulator-root .simulator-title {
+  font-family: 'Fraunces', var(--font-serif);
+}
+
+.simulator-range {
+  -webkit-appearance: none;
+  height: 4px;
+  background: #2C3556;
+  border-radius: 2px;
+}
+
+.simulator-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #D9A441;
+  cursor: pointer;
+  border: 2px solid #12172B;
+}
+
+.simulator-number {
+  background: #181F38;
+  border: 1px solid #2C3556;
+  color: #EDE8DC;
+}
