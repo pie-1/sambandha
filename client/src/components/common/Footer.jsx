@@ -82,8 +82,10 @@ const Footer = () => {
               <li className="text-gray-400 text-sm hover:text-bodhi-gold transition-colors cursor-pointer">
                 Public Voting
               </li>
-              <li className="text-gray-400 text-sm hover:text-bodhi-gold transition-colors cursor-pointer">
-                Impact Simulation
+              <li>
+                <Link to="/simulator" className="text-gray-400 hover:text-bodhi-gold transition-colors text-sm">
+                  Impact Simulation
+                </Link>
               </li>
             </ul>
           </div>
