@@ -1,10 +1,11 @@
 /**
- * Parliament Controller - One Health topics
+ * Parliament Controller - One Health Topics Management
+ * Handles creation, voting, and expert opinions on parliament topics
  */
 
 const ParliamentTopic = require("../models/ParliamentTopic");
 
-// Get all parliament topics (One Health focus)
+// Get all parliament topics
 exports.getTopics = async (req, res) => {
   try {
     const { sector, district } = req.query;
@@ -36,7 +37,7 @@ exports.getTopic = async (req, res) => {
   }
 };
 
-// Create parliament topic (Admin only)
+// Create parliament topic
 exports.createTopic = async (req, res) => {
   try {
     const topic = new ParliamentTopic({
@@ -50,11 +51,11 @@ exports.createTopic = async (req, res) => {
   }
 };
 
-// Vote on topic (Citizens)
+// ✅ FIXED: Vote on topic - Properly increment count
 exports.voteOnTopic = async (req, res) => {
   try {
     const { id } = req.params;
-    const { vote } = req.body; // 'approve' or 'disapprove'
+    const { vote } = req.body;
 
     const topic = await ParliamentTopic.findById(id);
     if (!topic) {
@@ -67,26 +68,36 @@ exports.voteOnTopic = async (req, res) => {
     );
 
     if (existingVote) {
-      return res.status(400).json({ success: false, message: 'You already voted on this topic' });
+      return res.status(400).json({ 
+        success: false, 
+        message: 'You already voted on this topic' 
+      });
     }
 
+    // ✅ Add vote
     topic.publicVotes.push({
       citizenId: req.user.id,
-      vote
+      vote: vote || 'approve',
+      votedAt: new Date()
     });
 
-    // Recalculate percentages
-    const totalVotes = topic.publicVotes.length;
+    // ✅ Update total votes count
+    topic.totalVotes = topic.publicVotes.length;
+    
+    // ✅ Update approval percentage (if needed)
     const approveVotes = topic.publicVotes.filter(v => v.vote === 'approve').length;
-    topic.approvalPercentage = totalVotes > 0 ? (approveVotes / totalVotes) * 100 : 0;
+    topic.approvalPercentage = topic.totalVotes > 0 ? (approveVotes / topic.totalVotes) * 100 : 0;
 
     await topic.save();
+
     res.json({
       success: true,
-      message: 'Vote recorded',
+      message: 'Vote recorded successfully!',
+      totalVotes: topic.totalVotes,
       approvalPercentage: topic.approvalPercentage
     });
   } catch (error) {
+    console.error('Vote error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -98,7 +109,10 @@ exports.addExpertOpinion = async (req, res) => {
     const { opinion } = req.body;
 
     if (req.user.role !== 'expert') {
-      return res.status(403).json({ success: false, message: 'Only experts can give opinions' });
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Only experts can give opinions' 
+      });
     }
 
     const topic = await ParliamentTopic.findById(id);
@@ -118,7 +132,8 @@ exports.addExpertOpinion = async (req, res) => {
   }
 };
 
-
-// This controller is designed to manage One Health parliament 
-// topics—from creating and retrieving topics to collecting citizen votes, 
-// recording expert opinions, and measuring public approval.
+/**
+ * This controller handles all parliament topic operations including creating topics, 
+ * public voting, and expert opinions. It enables citizens to engage with parliamentary 
+ * discussions and allows experts to provide professional insights.
+ */

@@ -1,28 +1,35 @@
 /**
- * STEP 2: Parliament Topics Feed
- * Real parliament topics with public voting and expert opinions
+ * Parliament Topics Page - Citizens Can Vote
  */
 
 import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useParliament } from '../../hooks/useParliament';
 import { format } from 'date-fns';
-import { useTranslation } from 'react-i18next';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
-import { ThumbsUp, ThumbsDown, MessageSquare, Calendar, MapPin, Users, Shield } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const ParliamentTopics = () => {
   const { user } = useAuth();
-  const { t } = useTranslation();
-  const { topics, isLoading, voteOnTopic, addExpertOpinion } = useParliament();
+  const { topics, isLoading, refetch, voteOnTopic, addExpertOpinion } = useParliament();
   const [opinion, setOpinion] = useState('');
   const [selectedTopic, setSelectedTopic] = useState(null);
+  const [votingLoading, setVotingLoading] = useState(false);
 
-  const handleVote = async (topicId, vote) => {
-    const result = await voteOnTopic.mutateAsync({ id: topicId, vote });
-    if (result) {
-      toast.success(`✅ ${vote === 'approve' ? 'Approved' : 'Disapproved'} successfully!`);
+  // ✅ Handle vote with loading state and refetch
+  const handleVote = async (topicId) => {
+    setVotingLoading(true);
+    try {
+      const result = await voteOnTopic.mutateAsync({ id: topicId, vote: 'approve' });
+      if (result) {
+        toast.success('✅ Vote recorded successfully!');
+        // ✅ Refetch topics to update vote count
+        await refetch();
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to vote');
+    } finally {
+      setVotingLoading(false);
     }
   };
 
@@ -36,6 +43,7 @@ const ParliamentTopics = () => {
       toast.success('✅ Expert opinion added!');
       setOpinion('');
       setSelectedTopic(null);
+      await refetch();
     }
   };
 
@@ -43,23 +51,13 @@ const ParliamentTopics = () => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Step Indicator */}
-      <div className="flex items-center gap-4 mb-6">
-        <div className="flex items-center gap-2">
-          <span className="bg-sdg-blue text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">2</span>
-          <span className="font-bold text-sdg-blue">Parliament Topics</span>
-        </div>
-        <div className="h-px flex-1 bg-gray-200"></div>
-        <span className="text-xs text-gray-400">Public Voice</span>
-      </div>
-
       <div className="mb-8">
         <div className="flex items-center gap-3">
-          <Shield className="w-8 h-8 text-sdg-gold" />
+          <span className="text-3xl">🏛️</span>
           <div>
-            <h1 className="text-3xl font-bold text-sdg-blue">🏛️ Parliament Topics</h1>
-            <p className="text-gray-600 mt-1">
-              Track parliament discussions on One Health issues and share your voice
+            <h1 className="text-2xl font-bold text-bodhi-navy">Parliament Topics</h1>
+            <p className="text-gray-500 text-sm mt-1">
+              Track parliament discussions and share your voice
             </p>
           </div>
         </div>
@@ -67,67 +65,101 @@ const ParliamentTopics = () => {
 
       <div className="space-y-6">
         {topics.length === 0 ? (
-          <div className="text-center py-12">
+          <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-100">
             <p className="text-gray-500">No parliament topics available</p>
           </div>
         ) : (
           topics.map((topic) => (
-            <div key={topic._id} className="card border-l-4 border-sdg-gold">
+            <div key={topic._id} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               {/* Header */}
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-sdg-blue">{topic.title}</h3>
+                  <h3 className="text-xl font-bold text-bodhi-navy">{topic.title}</h3>
                   <div className="flex flex-wrap items-center gap-3 mt-2">
-                    <span className={`badge badge-${topic.sector}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                      topic.sector === 'health' ? 'bg-green-100 text-green-700' :
+                      topic.sector === 'environment' ? 'bg-blue-100 text-blue-700' :
+                      'bg-yellow-100 text-yellow-700'
+                    }`}>
                       {topic.sector}
                     </span>
                     {topic.district && (
-                      <span className="flex items-center gap-1 text-xs text-gray-500">
-                        <MapPin className="w-3 h-3" /> {topic.district}
-                      </span>
+                      <span className="text-xs text-gray-500">📍 {topic.district}</span>
                     )}
-                    <span className="flex items-center gap-1 text-xs text-gray-500">
-                      <Calendar className="w-3 h-3" />
-                      {format(new Date(topic.parliamentDate), 'MMM d, yyyy')}
+                    <span className="text-xs text-gray-400">
+                      📅 {format(new Date(topic.parliamentDate), 'MMM d, yyyy')}
                     </span>
-                    <span className="text-xs text-sdg-blue/70 bg-sdg-blue/5 px-2 py-0.5 rounded-full">
+                    <span className="text-xs text-sambandh-brass/70 bg-sambandh-brass/5 px-2 py-0.5 rounded-full">
                       {topic.parliamentSession || 'Current Session'}
                     </span>
                   </div>
                 </div>
-                <div className="text-center bg-sdg-blue/5 rounded-lg px-4 py-2">
-                  <div className="text-2xl font-bold text-sdg-gold">
-                    {topic.approvalPercentage?.toFixed(0) || 0}%
+                <div className="text-center bg-sambandh-brass/5 rounded-lg px-4 py-2">
+                  <div className="text-2xl font-bold text-sambandh-brass">
+                    {topic.totalVotes || 0}
                   </div>
-                  <div className="text-xs text-gray-500">Approval</div>
+                  <div className="text-xs text-gray-500">Total Votes</div>
                 </div>
               </div>
 
               {/* Description */}
               <p className="text-gray-600 mt-3 text-sm">{topic.description}</p>
 
-              {/* Voting */}
+              {/* ✅ VOTING - Single Vote Button for Citizens */}
               {user?.role === 'citizen' && (
-                <div className="flex items-center gap-3 mt-4">
+                <div className="flex items-center gap-3 mt-4 pt-4 border-t border-gray-100">
                   <button
-                    onClick={() => handleVote(topic._id, 'approve')}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition font-medium"
+                    onClick={() => handleVote(topic._id)}
+                    disabled={votingLoading}
+                    className="flex items-center gap-1.5 px-5 py-2 bg-sambandh-brass text-white rounded-lg hover:bg-sambandh-brass-light transition font-medium disabled:opacity-50"
                   >
-                    <ThumbsUp className="w-4 h-4" /> Approve
+                    {votingLoading ? '⏳ Voting...' : '🗳️ Vote'}
                   </button>
-                  <button
-                    onClick={() => handleVote(topic._id, 'disapprove')}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition font-medium"
-                  >
-                    <ThumbsDown className="w-4 h-4" /> Disapprove
-                  </button>
-                  <span className="text-xs text-gray-400 flex items-center gap-1">
-                    <Users className="w-3 h-3" /> {topic.totalVotes || 0} votes
+                  <span className="text-xs text-gray-400">
+                    {topic.totalVotes || 0} votes received
                   </span>
                 </div>
               )}
 
-              {/* Expert Opinions */}
+              {/* ✅ Experts can give opinions */}
+              {user?.role === 'expert' && (
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  {selectedTopic === topic._id ? (
+                    <div className="space-y-2">
+                      <textarea
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sambandh-brass"
+                        placeholder="Add your expert opinion..."
+                        value={opinion}
+                        onChange={(e) => setOpinion(e.target.value)}
+                        rows={2}
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleExpertOpinion(topic._id)}
+                          className="px-4 py-2 bg-bodhi-navy text-white rounded-lg hover:bg-bodhi-navy-deep transition"
+                        >
+                          Submit Opinion
+                        </button>
+                        <button
+                          onClick={() => setSelectedTopic(null)}
+                          className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setSelectedTopic(topic._id)}
+                      className="text-sm text-bodhi-navy hover:text-sambandh-brass transition font-medium"
+                    >
+                      💬 Add Expert Opinion
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Expert Opinions Display */}
               {topic.expertOpinions?.length > 0 && (
                 <div className="mt-4 p-3 bg-gray-50 rounded-lg">
                   <p className="text-xs font-medium text-gray-500 mb-2">👨‍🔬 Expert Opinions</p>
@@ -139,44 +171,6 @@ const ParliamentTopics = () => {
                       </p>
                     </div>
                   ))}
-                </div>
-              )}
-
-              {/* Expert Opinion Form */}
-              {user?.role === 'expert' && (
-                <div className="mt-4">
-                  {selectedTopic === topic._id ? (
-                    <div className="space-y-2">
-                      <textarea
-                        className="input-field"
-                        placeholder="Add your expert opinion..."
-                        value={opinion}
-                        onChange={(e) => setOpinion(e.target.value)}
-                        rows={2}
-                      />
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleExpertOpinion(topic._id)}
-                          className="btn-primary text-sm px-4 py-1.5"
-                        >
-                          Submit Opinion
-                        </button>
-                        <button
-                          onClick={() => setSelectedTopic(null)}
-                          className="btn-secondary text-sm px-4 py-1.5"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setSelectedTopic(topic._id)}
-                      className="text-sm text-sdg-blue hover:text-sdg-gold transition font-medium flex items-center gap-1"
-                    >
-                      <MessageSquare className="w-4 h-4" /> Add Expert Opinion
-                    </button>
-                  )}
                 </div>
               )}
             </div>

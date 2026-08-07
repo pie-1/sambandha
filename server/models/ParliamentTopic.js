@@ -1,5 +1,5 @@
 /**
- * Parliament Topic Model - One Health focus
+ * Parliament Topic Model - One Health Focus
  */
 
 const mongoose = require("mongoose");
@@ -8,7 +8,6 @@ const ParliamentTopicSchema = new mongoose.Schema({
   title: { type: String, required: true, trim: true },
   description: { type: String, required: true, trim: true },
   
-  // One Health focus
   sector: {
     type: String,
     enum: ['health', 'environment', 'one_health'],
@@ -17,37 +16,38 @@ const ParliamentTopicSchema = new mongoose.Schema({
   },
   
   district: { type: String },
+  relatedDistricts: { type: [String] },
   
-  // Parliament details
   parliamentDate: { type: Date },
   parliamentSession: { type: String },
+  speakerName: { type: String },
+  speakerRole: { type: String },
   
-  // Public engagement
+  // ✅ Voting fields
   publicVotes: [{
     citizenId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     vote: { type: String, enum: ['approve', 'disapprove'] },
     votedAt: { type: Date, default: Date.now }
   }],
-  approvalPercentage: { type: Number, default: 0 },
-  totalVotes: { type: Number, default: 0 },
   
-  // Expert opinions
+  // ✅ Total votes count
+  totalVotes: { type: Number, default: 0 },
+  approvalPercentage: { type: Number, default: 0 },
+  
   expertOpinions: [{
     expertId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     opinion: { type: String },
     createdAt: { type: Date, default: Date.now }
   }],
   
-  // Status
   isActive: { type: Boolean, default: true },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  
-  // Link to draft if policy created
   linkedDraftId: { type: mongoose.Schema.Types.ObjectId, ref: 'Draft' },
+  sourceLink: { type: String },
   
 }, { timestamps: true });
 
+ParliamentTopicSchema.index({ sector: 1, district: 1 });
+ParliamentTopicSchema.index({ createdAt: -1 });
+
 module.exports = mongoose.model("ParliamentTopic", ParliamentTopicSchema);
-
-
-// This model is designed to manage One Health parliament topics—from storing topic details and parliamentary information to tracking citizen votes, expert opinions, and links to related policy drafts.

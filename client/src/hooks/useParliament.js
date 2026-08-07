@@ -31,10 +31,10 @@ export const useParliament = () => {
     });
   };
 
-  // Vote on topic
+  // ✅ Vote on topic - always 'approve'
   const voteOnTopic = useMutation({
-    mutationFn: async ({ id, vote }) => {
-      const res = await axiosClient.post(API.PARLIAMENT.VOTE(id), { vote });
+    mutationFn: async ({ id }) => {
+      const res = await axiosClient.post(API.PARLIAMENT.VOTE(id), { vote: 'approve' });
       return res.data;
     },
     onSuccess: (_, { id }) => {
@@ -72,7 +72,3 @@ export const useParliament = () => {
     addExpertOpinion,
   };
 };
-
-
-// designed to manage parliament topics by fetching topic data, handling citizens voting and 
-// expert opinions 
