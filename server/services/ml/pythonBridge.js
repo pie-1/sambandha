@@ -11,7 +11,9 @@
  */
 
 const HealthRecord = require('../../models/HealthRecord');
+const Project = require('../../models/Project');
 const { buildHealthPolicyRecords, buildBudgetOutcomeRecords, buildClaimRecords } = require('./data');
+const { runSimulation: jsRunSimulation, computeSectorTrend: jsTrend, computeAggregates: jsAggregates, DATASET } = require('../simulationModel');
 const jsSuccess = require('./logisticRegression');
 const jsBudget = require('./budgetModel');
 const jsClaims = require('./claimsModel');
@@ -59,12 +61,21 @@ async function loadRecords(kind, fallbackBuilder) {
 }
 
 async function exportAllRecords() {
-  const [policy, budget, claims] = await Promise.all([
+  const [policy, budget, claims, projects] = await Promise.all([
     loadRecords('policy', buildHealthPolicyRecords),
     loadRecords('budget', buildBudgetOutcomeRecords),
     loadRecords('claim', buildClaimRecords),
+    (async () => {
+      try {
+        const rows = await Project.find().lean();
+        if (rows.length > 0) return rows;
+      } catch (err) {
+        console.warn(`[ml-python] DB unavailable for project ledger (${err.message})`);
+      }
+      return DATASET;
+    })(),
   ]);
-  return { policy, budget, claims };
+  return { policy, budget, claims, projects };
 }
 
 /**
@@ -74,9 +85,17 @@ async function exportAllRecords() {
 async function warmUp() {
   try {
     const health = await pythonFetch('/health', null, 'GET');
-    if (!health.trained) {
-      const records = await exportAllRecords();
+    const records = health.trained ? await exportAllRecords() : null;
+    if (records && (await developmentDatasetOutdated(records.projects.length))) {
       const res = await pythonFetch('/train', records);
+      console.log(
+        `[ml-python] re-trained with project ledger: ${res.data.development.datasetSize} projects synced`
+      );
+      return;
+    }
+    if (!health.trained) {
+      const rec = await exportAllRecords();
+      const res = await pythonFetch('/train', rec);
       console.log(
         `[ml-python] trained sklearn models: ` +
           `${res.data.models.success.sampleSize} policy / ${res.data.models.impact.sampleSize} budget / ` +
@@ -87,6 +106,15 @@ async function warmUp() {
     }
   } catch (err) {
     warnOnce(`ML service unreachable (${err.message})`);
+  }
+}
+
+async function developmentDatasetOutdated(dbCount) {
+  try {
+    const meta = await pythonFetch('/metadata', null, 'GET');
+    return !meta.data.development || meta.data.development.datasetSize !== dbCount;
+  } catch {
+    return false;
   }
 }
 
@@ -117,6 +145,27 @@ async function predictClaims(inputs) {
   } catch (err) {
     warnOnce(`claims forecast via Python failed (${err.message})`);
     return { ...(await jsClaims.predictClaims(inputs)), engine: 'js-fallback' };
+  }
+}
+
+async function runSimulation(province, sectorName, budget) {
+  try {
+    const res = await pythonFetch('/predict/development', { province, sectorName, budget });
+    return { ...res.data, engine: 'python' };
+  } catch (err) {
+    warnOnce(`development projection via Python failed (${err.message})`);
+    return { ...(await jsRunSimulation(province, sectorName, budget)), engine: 'js-fallback' };
+  }
+}
+
+async function computeSectorSummary(sectorName) {
+  try {
+    const res = await pythonFetch('/sector/analysis', { sectorName });
+    return { ...res.data, engine: 'python' };
+  } catch (err) {
+    warnOnce(`sector analysis via Python failed (${err.message})`);
+    const [trend, aggregates] = await Promise.all([jsTrend(sectorName), jsAggregates(sectorName)]);
+    return { trend, aggregates, engine: 'js-fallback' };
   }
 }
 
@@ -183,6 +232,8 @@ module.exports = {
   predictPolicySuccess,
   analyzeBudgetImpact,
   predictClaims,
+  runSimulation,
+  computeSectorSummary,
   getSuccessModel,
   getBudgetModels,
   getClaimsModel,

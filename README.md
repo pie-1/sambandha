@@ -102,10 +102,18 @@ runs) that produces a complete six-section report in one run:
 4. **Health systems analysis** (Health & Nutrition sector) — policy success
    probability (logistic regression trained with gradient descent), per-program
    coverage gains per crore, forecast insurance claims from the claimant profile,
-   plus an expert-consensus layer
-5. **Matched historical precedents** — closest projects in the provincial ledger
-6. **Detailed insights** — strengths, risks and recommendations, plus a narrative
-   report summary
+   plus an expert-consensus layer. Inference runs through the **Python ML
+   microservice** (scikit-learn) when it is running, with automatic fallback
+   to the in-process JS reference models (`engine: python` vs
+   `engine: js-fallback` is reported on every result).
+ 5. **Matched historical precedents** — closest projects in the provincial ledger.
+    The development projection engine (jobs, efficiency, completion, overrun,
+    confidence) plus sector trend and aggregates also compute in the **Python
+    microservice** (`/predict/development`, `/sector/analysis`) over the real
+    ledger, with the identical formula running in JS as the fallback
+    (`historical.engine: python` vs `js-fallback`).
+ 6. **Detailed insights** — strengths, risks and recommendations, plus a narrative
+    report summary
 
 Draft-linked runs are **sector-bound**: the simulation always evaluates the
 draft's own sector (enforced client-side and server-side), so a health draft
@@ -133,6 +141,34 @@ The policy-impact engine reads its nearest-neighbour ledger from `projects`
 and the ML models train on `healthrecords` at first use — so model metadata
 (e.g. `sampleSize`) reflects exactly what is stored.
 
+### 🐍 Python ML Microservice
+The health ML models are trained in real Python with scikit-learn when the
+service is running, so the training pipeline is inspectable as standard data
+science code. The development projection engine (distance-weighted k-NN over
+the 224-project ledger) runs there too:
+
+```bash
+cd ml-service
+uv venv --python 3.14            # first time only
+uv pip install -r pyproject.toml
+uv run uvicorn app.main:app --port 8000
+```
+
+- `POST /train` — the Node app exports the same records it would train its JS
+  models on (MongoDB `healthrecords` + the `projects` ledger, or the
+  deterministic generators) and pushes them to the service; artifacts are
+  persisted to `ml-service/models/`
+- `POST /predict/{policy,budget,claims}` — inference, returned in exactly the
+  shapes the JS models produce
+- `POST /predict/development` + `POST /sector/analysis` — projections, trend
+  and aggregates over the real ledger, byte-identical to the JS engine
+- `GET /metadata` — sample size, accuracy/AUC/R²/MAE, trained-at timestamp
+- On Node server startup the service is auto-warmed (`[ml-python]` log line);
+  if it is unreachable every call falls back to the JS reference models, so
+  the app never breaks without Python
+
+Set `ML_SERVICE_URL` (default `http://127.0.0.1:8000`) in `server/.env`.
+
 ### 🌐 Internationalization
 - English/Nepali language toggle
 - Full UI translation support
@@ -151,6 +187,7 @@ and the ML models train on `healthrecords` at first use — so model metadata
 | Mongoose | 8.0.3 | ODM |
 | JWT | 9.0.2 | Authentication |
 | Bcrypt | 2.4.3 | Password hashing |
+| Python + FastAPI + scikit-learn | 3.14 / 0.141 / 1.9 | ML training & inference microservice (`ml-service/`) |
 
 ### Frontend
 | Technology | Version | Purpose |
@@ -326,6 +363,8 @@ After seeding the database, you can use these test accounts:
 | `JWT_SECRET` | JWT secret key | Required |
 | `JWT_EXPIRE` | JWT expiration time | `7d` |
 | `CLIENT_URL` | Client URL for CORS | `http://localhost:5173` |
+| `ML_SERVICE_URL` | Python ML microservice base URL | `http://127.0.0.1:8000` |
+| `ML_TIMEOUT_MS` | ML service request timeout | `4000` |
 
 ### Client (`client/.env`)
 | Variable | Description | Default |

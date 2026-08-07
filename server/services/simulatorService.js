@@ -8,7 +8,8 @@
  */
 
 const Draft = require('../models/Draft');
-const { runSimulation, buildInsights, computeSectorTrend, computeAggregates, SOURCES } = require('./simulationModel');
+const { buildInsights, SOURCES } = require('./simulationModel');
+const { runSimulation, computeSectorSummary } = require('./ml/pythonBridge');
 const { resolveSimulationInputs } = require('../utils/simulationMappings');
 const { simulateHealthPolicy } = require('./healthModel');
 const { collectDraftInsights } = require('./liveInsights');
@@ -27,12 +28,12 @@ const simulatePolicyImpact = async ({ draftId, province, sectorName, budget, pro
   }
 
   const inputs = resolveSimulationInputs({ province, sectorName, budget, draft });
-  const result = await runSimulation(inputs.province, inputs.sectorName, inputs.budget);
-  const insights = buildInsights(inputs.province, inputs.sectorName, result);
-  const [trend, aggregates] = await Promise.all([
-    computeSectorTrend(inputs.sectorName),
-    computeAggregates(inputs.sectorName),
+  const [result, sectorSummary] = await Promise.all([
+    runSimulation(inputs.province, inputs.sectorName, inputs.budget),
+    computeSectorSummary(inputs.sectorName),
   ]);
+  const insights = buildInsights(inputs.province, inputs.sectorName, result);
+  const { trend, aggregates } = sectorSummary;
   const historical = {
     datasetSize: result.datasetSize,
     period: '2078/79–2080/81',
@@ -40,6 +41,7 @@ const simulatePolicyImpact = async ({ draftId, province, sectorName, budget, pro
     provinceBenchmark: result.provinceBenchmark,
     trend,
     aggregates,
+    engine: sectorSummary.engine,
   };
 
   const [live, health] = await Promise.all([
