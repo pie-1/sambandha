@@ -1,3 +1,8 @@
+/**
+ * Main Server File
+ * Express.js server with all middleware, routes, and error handling
+ */
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -6,7 +11,7 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
-
+// Import routes
 const authRoutes = require("./routes/authRoutes");
 const draftRoutes = require("./routes/draftRoutes");
 const commentRoutes = require("./routes/commentRoutes");
@@ -20,17 +25,19 @@ const { warmUp: warmUpPythonMl } = require("./services/ml/pythonBridge");
 
 const app = express();
 
-
+// ===== MIDDLEWARE =====
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-
-app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true,
-}));
-
+// ===== ROUTES =====
+app.get("/api/health", (req, res) => {
+  res.json({ success: true, status: 'running', timestamp: new Date().toISOString() });
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/drafts", draftRoutes);
@@ -43,36 +50,30 @@ app.use("/api/priorities", priorityRoutes);
 app.use("/api/projects", projectRoutes);
 
 
+// ===== ERROR HANDLING =====
 app.use((req, res) => {
-  res.status(404).json({ 
-    success: false, 
-    message: `Route ${req.originalUrl} not found` 
-  });
+  res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
 });
 
 app.use((err, req, res, next) => {
-  console.error("Error:", err.message);
-  res.status(500).json({
-    success: false,
-    message: err.message,
-  });
+  console.error('Error:', err.message);
+  res.status(500).json({ success: false, message: err.message });
 });
 
-
+// ===== START SERVER =====
 const PORT = process.env.PORT || 5000;
 
-mongoose
-  .connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI)
   .then(() => {
-    console.log("MongoDB Connected");
+    console.log(`✅ MongoDB Connected`);
     app.listen(PORT, () => {
       console.log(` Server running on port ${PORT}`);
       console.log(` http://localhost:${PORT}/api`);
       warmUpPythonMl();
     });
   })
-  .catch((err) => {
-    console.error("MongoDB Error:", err.message);
+  .catch(err => {
+    console.error('❌ MongoDB Error:', err.message);
     process.exit(1);
   });
 
