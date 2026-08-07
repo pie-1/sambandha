@@ -2,7 +2,6 @@
  * Meeting Room Component
  */
 
-import React from 'react';
 import { useMeeting } from '../../hooks/useMeeting';
 
 const MeetingRoom = ({ draftId }) => {

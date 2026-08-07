@@ -2,7 +2,7 @@
  * Draft Detail Page
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDrafts } from '../../hooks/useDrafts';
 import { useComments } from '../../hooks/useComments';
@@ -91,9 +91,13 @@ const DraftDetail = () => {
               Finalize
             </button>
           )}
-          {user.role === 'officer' && (
+          {(user.role === 'officer' || user.role === 'expert') && (
             <button
-              onClick={() => navigate(`/drafts/${id}/simulate`)}
+              onClick={() =>
+                navigate(
+                  `/drafts/${id}/simulate${draft.sector === 'health' ? '?model=health' : ''}`
+                )
+              }
               className="btn-outline"
             >
               Run Simulation

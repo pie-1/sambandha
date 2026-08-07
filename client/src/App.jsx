@@ -2,8 +2,7 @@
  * Main App Component
  */
 
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
@@ -25,6 +24,11 @@ import DraftDetail from './pages/drafts/DraftDetail';
 import DraftUpload from './pages/drafts/DraftUpload';
 import PublicFeedback from './pages/feedback/PublicFeedback';
 import SimulatorPage from './pages/simulator/SimulatorPage';
+
+function HealthSimulatorRedirect() {
+  const { id } = useParams();
+  return <Navigate to={id ? `/drafts/${id}/simulate?model=health` : '/simulator?model=health'} replace />;
+}
 
 function App() {
   const { user, loading } = useAuth();
@@ -60,6 +64,8 @@ function App() {
             <Route path="/feedback" element={<PublicFeedback />} />
             <Route path="/simulator" element={<SimulatorPage standalone />} />
             <Route path="/drafts/:id/simulate" element={<SimulatorPage />} />
+            <Route path="/ml/simulator" element={<HealthSimulatorRedirect />} />
+            <Route path="/drafts/:id/ml-simulate" element={<HealthSimulatorRedirect />} />
           </Route>
           
           {/* Fallback */}

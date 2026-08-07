@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
@@ -44,7 +44,9 @@ export default function Hero() {
   const { user } = useAuth();
   const { t } = useTranslation();
   const [videoFailed, setVideoFailed] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(
+    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
 
   const titleRef = useRef(null);
   const subtitleRef = useRef(null);
@@ -59,7 +61,8 @@ export default function Hero() {
 
   useEffect(() => {
     const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setReducedMotion(mql.matches);
+    const onPrefChange = (e) => setReducedMotion(e.matches);
+    mql.addEventListener('change', onPrefChange);
 
     if (mql.matches) {
       // No entrance choreography, no autoplay video — content is just present
@@ -67,7 +70,7 @@ export default function Hero() {
         opacity: 1,
         y: 0,
       });
-      return;
+      return () => mql.removeEventListener('change', onPrefChange);
     }
 
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
@@ -76,6 +79,8 @@ export default function Hero() {
       .fromTo(buttonRef.current, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 }, '-=0.2')
       .fromTo(statsRef.current, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 }, '-=0.1')
       .fromTo(scrollRef.current, { opacity: 0 }, { opacity: 1, duration: 0.4 }, '-=0.1');
+
+    return () => mql.removeEventListener('change', onPrefChange);
   }, []);
 
   return (

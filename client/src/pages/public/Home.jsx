@@ -3,7 +3,6 @@
  * Complete landing page with Landing, Features, and Footer sections
  */
 
-import React from 'react';
 import LandingSection from './LandingSection';
 import FeaturesSection from './FeaturesSection';
 

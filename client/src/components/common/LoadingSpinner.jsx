@@ -2,7 +2,6 @@
  * Loading Spinner Component
  */
 
-import React from 'react';
 
 const LoadingSpinner = () => {
   return (

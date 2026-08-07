@@ -3,7 +3,6 @@
  * Platform features and how it works
  */
 
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -137,7 +136,7 @@ const FeaturesSection = () => {
               </div>
               <h4 className="text-xl font-serif text-bodhi-navy mb-2">Vote & Impact</h4>
               <p className="text-sm text-gray-600 max-w-xs mx-auto">
-                Citizens approve/disapprove and shape Nepal's future.
+                Citizens approve/disapprove and shape Nepal&apos;s future.
               </p>
             </div>
           </div>

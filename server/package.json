@@ -8,6 +8,7 @@
     "dev": "nodemon server.js",
     "start": "node server.js",
     "seed": "node seed/seed.js",
+    "seed:sim": "node seed/seedSimulation.js",
     "seed:reset": "node seed/seed.js --reset"
 
   },

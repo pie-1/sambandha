@@ -68,10 +68,52 @@
 - Instant meeting creation for draft discussions
 - No account required for participants
 
-### 📊 Impact Simulator
-- Policy impact simulation placeholder
-- Estimated jobs, efficiency scores, and comparable cases
-- Ready for AI/ML model integration
+### 📊 Policy Simulation Lab
+A single unified page (`/simulator`, and `/drafts/:id/simulate` for draft-linked
+runs) that produces a complete six-section report in one run:
+
+1. **Projected outcomes** — estimated jobs, spending efficiency, completion
+   likelihood and overrun risk, benchmarked against sector-wide historical averages
+2. **Historical context** — execution trends (FY 2078/79–2080/81) for the sector,
+   aggregation donut charts (delivery status mix, capital budget by sector and by
+   province), nearest-neighbour precedents, and the draft budget as a share of the
+   province's capital budget (FY 2080/81)
+3. **Community consensus** — live participation data for the linked draft: expert
+   comments (role counts + Nepali/English sentiment), public approve/disapprove
+   votes, district breakdown, and an overall consensus label
+4. **Health systems analysis** (Health & Nutrition sector) — policy success
+   probability (logistic regression trained with gradient descent), per-program
+   coverage gains per crore, forecast insurance claims from the claimant profile,
+   plus an expert-consensus layer
+5. **Matched historical precedents** — closest projects in the provincial ledger
+6. **Detailed insights** — strengths, risks and recommendations, plus a narrative
+   report summary
+
+Draft-linked runs are **sector-bound**: the simulation always evaluates the
+draft's own sector (enforced client-side and server-side), so a health draft
+cannot be run against roads precedents. Standalone lab runs remain free-form.
+
+All estimates are calibrated to published Nepali data — MoF Red Book /
+provincial budget statements, NDHS 2022, NHSS-IP and CBS statistics — and the
+UI attributes every estimate to its reference dataset and sources.
+
+### 🗄️ Simulation Data
+The engines run on real MongoDB collections, seeded from the deterministic
+generators (which remain as a dev fallback when the collections are empty):
+
+```bash
+cd server && npm run seed:sim -- --reset
+```
+
+Seeds two collections:
+- `projects` — 224 provincial capital projects (FY 2078/79–2080/81),
+  anchored to provincial capital budgets (MoF Red Book FY 2080/81)
+- `healthrecords` — 822 health ML training records (198 policy-success,
+  224 budget-outcome, 400 claims) anchored to NDHS 2022 / NHIF / CBS
+
+The policy-impact engine reads its nearest-neighbour ledger from `projects`
+and the ML models train on `healthrecords` at first use — so model metadata
+(e.g. `sampleSize`) reflects exactly what is stored.
 
 ### 🌐 Internationalization
 - English/Nepali language toggle
@@ -208,10 +250,15 @@ net start MongoDB
 # From root directory
 npm run seed
 
-# OR from server directory
+# From server directory
 cd server
-npm run seed
+npm run seed            # app demo data (users, drafts, comments, feedback)
+npm run seed:sim        # simulation data (projects ledger + health ML records)
 ```
+
+The simulation engines fall back to embedded generators when `projects` /
+`healthrecords` are empty, so `seed:sim` is optional in development — but run
+it for DB-backed authenticity in demos and presentations.
 
 ### Step 6: Start the Application
 
@@ -290,7 +337,7 @@ sambandh/
 │   │   │   ├── dashboard/           # Dashboard
 │   │   │   ├── drafts/              # Draft CRUD pages
 │   │   │   ├── feedback/            # Feedback page
-│   │   │   └── simulator/           # Simulator page
+│   │   │   └── simulator/           # Unified Simulation Lab page
 │   │   ├── locales/                 # i18n translation files
 │   │   ├── styles/                  # Global CSS
 │   │   ├── App.jsx                  # Main App component
@@ -302,25 +349,39 @@ sambandh/
 │   └── .env
 │
 ├── server/                          # Node.js Backend
-│   ├── controllers/                 # Business logic
+│   ├── services/                  # Business services
+│   │   ├── simulationModel.js     # Ledger-based policy impact model (calibrated to MoF Red Book)
+│   │   ├── liveInsights.js        # Community consensus from comments + feedback
+│   │   ├── reportBuilder.js       # Narrative report summary
+│   │   ├── simulatorService.js    # Unified orchestration (policy + consensus + health ML)
+│   │   ├── healthModel.js         # Health ML orchestration + tagging + consensus
+│   │   └── ml/                    # Trained ML models (pure JS)
+│   │       ├── core.js            # Gradient descent, normalization, metrics
+│   │       ├── data.js            # Health datasets anchored to NDHS 2022 / CBS
+│   │       ├── logisticRegression.js
+│   │       ├── budgetModel.js
+│   │       └── claimsModel.js
+│   ├── controllers/               # Business logic
 │   │   ├── authController.js
 │   │   ├── draftController.js
 │   │   ├── commentController.js
 │   │   ├── feedbackController.js
 │   │   ├── meetingController.js
-│   │   └── simulatorController.js
+│   │   ├── simulatorController.js
+│   │   └── healthMlController.js
 │   ├── models/                      # Mongoose models
 │   │   ├── User.js
 │   │   ├── Draft.js
 │   │   ├── Comment.js
 │   │   └── Feedback.js
-│   ├── routes/                      # API routes
+│   ├── routes/                    # API routes
 │   │   ├── authRoutes.js
 │   │   ├── draftRoutes.js
 │   │   ├── commentRoutes.js
 │   │   ├── feedbackRoutes.js
 │   │   ├── meetingRoutes.js
-│   │   └── simulatorRoutes.js
+│   │   ├── simulatorRoutes.js
+│   │   └── healthMlRoutes.js
 │   ├── middleware/                  # Middleware
 │   │   ├── auth.js                 # JWT verification
 │   │   ├── roleCheck.js            # RBAC
@@ -381,11 +442,35 @@ sambandh/
 | POST | `/api/meetings/drafts/:id` | Create meeting | Yes |
 | GET | `/api/meetings/drafts/:id` | Get meeting link | Yes |
 
-### Simulator Endpoint
+### Simulator Endpoints
 
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| POST | `/api/simulate` | Run impact simulation | Yes |
+| POST | `/api/simulate` | Unified simulation: projections, historical trend, community consensus (for linked drafts) and health ML analysis (for the health sector) | Yes |
+| GET | `/api/simulate/metadata` | Model metadata & ledger size | Yes |
+
+### Health ML Endpoints
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/ml/health/simulate` | Run health policy ML analysis (legacy, folded into `/api/simulate`) | Yes |
+| GET | `/api/ml/health/metadata` | Get model metadata & training stats | Yes |
+
+### Simulation Data Sources
+
+All engines report their reference data through the API responses and UI footers:
+
+| Source | Used for |
+|--------|----------|
+| MoF Red Book & provincial budget statements, FY 2080/81 | Provincial capital allocations (Rs crore) anchoring the development ledger |
+| NDHS 2022 | Provincial immunization coverage, stunting and health baselines |
+| NHSS-IP 2022–2030 (MoHP) | Health programme structure and coverage targets |
+| NHIF claims benchmarks | Insurance claim incidence and cost baselines |
+| Census 2021 (CBS) | Population, remoteness and household profiles |
+
+Training records are reconstructed deterministically around these anchors so
+model behaviour is reproducible and interpretable while reflecting real
+provincial differences.
 
 ---
 

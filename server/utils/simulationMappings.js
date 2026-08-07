@@ -58,8 +58,10 @@ function resolveSimulationInputs({ province, sectorName, budget, draft }) {
   let resolvedBudget = budget;
 
   if (draft) {
+    // A draft-linked run always evaluates the draft's own sector —
+    // the sector is not a free parameter for draft simulations.
     resolvedProvince = resolvedProvince || districtToProvince(draft.district);
-    resolvedSector = resolvedSector || draftSectorToSimSector(draft.sector);
+    resolvedSector = draftSectorToSimSector(draft.sector);
     if (resolvedBudget == null && draft.budgetAmount) {
       resolvedBudget = nprToCrore(draft.budgetAmount);
     }

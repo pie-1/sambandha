@@ -2,7 +2,6 @@
  * Draft List Component
  */
 
-import React from 'react';
 import DraftCard from './DraftCard';
 import LoadingSpinner from '../common/LoadingSpinner';
 

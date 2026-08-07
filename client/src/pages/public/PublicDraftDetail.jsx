@@ -3,7 +3,6 @@
  * Read-only view for non-logged in users
  */
 
-import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDrafts } from '../../hooks/useDrafts';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -21,7 +20,7 @@ const PublicDraftDetail = () => {
     <div className="text-center py-16">
       <div className="text-6xl mb-4">🔍</div>
       <h2 className="text-2xl font-serif text-bodhi-navy mb-2">Policy Not Found</h2>
-      <p className="text-gray-500 mb-4">The policy you're looking for doesn't exist.</p>
+      <p className="text-gray-500 mb-4">The policy you&apos;re looking for doesn&apos;t exist.</p>
       <Link to="/policies" className="btn-primary inline-block">
         Browse All Policies
       </Link>

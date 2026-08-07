@@ -1,20 +1,15 @@
 /**
- * Auth Context 
+ * Auth Provider
  */
 
-import React, { createContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axiosClient from '../api/axiosClient';
 import API from '../api/endpoints';
-
-export const AuthContext = createContext();
+import { AuthContext } from './authContext';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
 
   const checkAuth = async () => {
     try {
@@ -32,6 +27,30 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    let active = true;
+    axiosClient
+      .get(API.AUTH.ME)
+      .then(({ data }) => {
+        if (active) setUser(data.user);
+      })
+      .catch((error) => {
+        if (!active) return;
+        // 401 is expected when not logged in - ignore silently
+        if (error.response?.status === 401) {
+          setUser(null);
+        } else {
+          console.error('Auth check error:', error.message);
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const login = async (email, password) => {
     try {
@@ -78,7 +97,7 @@ export const AuthProvider = ({ children }) => {
       await axiosClient.post(API.AUTH.LOGOUT);
       setUser(null);
       return { success: true };
-    } catch (error) {
+    } catch {
       return { success: false };
     }
   };

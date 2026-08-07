@@ -18,13 +18,15 @@ exports.getMetadata = (_req, res) => {
 
 exports.simulate = async (req, res) => {
   try {
-    const { draftId, province, sectorName, sector, budget, budgetAmount } = req.body;
+    const { draftId, province, sectorName, sector, budget, budgetAmount, program, claimant } = req.body;
 
     const data = await simulatorService.simulatePolicyImpact({
       draftId,
       province,
       sectorName: sectorName || sector,
       budget: budget ?? (budgetAmount ? budgetAmount / 10_000_000 : undefined),
+      program,
+      claimant,
     });
 
     res.json({

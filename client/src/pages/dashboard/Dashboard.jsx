@@ -2,7 +2,6 @@
  * Dashboard Page
  */
 
-import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useDrafts } from '../../hooks/useDrafts';
 import DraftList from '../../components/drafts/DraftList';

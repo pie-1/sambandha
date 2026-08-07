@@ -3,17 +3,14 @@
  * Complete navigation with proper links
  */
 
-import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { useTranslation } from 'react-i18next';
 import LanguageToggle from './LanguageToggle';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useTranslation();
 
   const handleLogout = async () => {
     await logout();
@@ -49,14 +46,14 @@ const Navbar = () => {
               </Link>
             )}
             {user?.role === 'officer' && (
-              <>
-                <Link to="/upload" className={`text-sm transition ${isActive('/upload')}`}>
-                  Upload
-                </Link>
-                <Link to="/simulator" className={`text-sm transition ${isActive('/simulator')}`}>
-                  Simulator
-                </Link>
-              </>
+              <Link to="/upload" className={`text-sm transition ${isActive('/upload')}`}>
+                Upload
+              </Link>
+            )}
+            {(user?.role === 'officer' || user?.role === 'expert') && (
+              <Link to="/simulator" className={`text-sm transition ${isActive('/simulator')}`}>
+                Simulator
+              </Link>
             )}
             {user?.role === 'citizen' && (
               <Link to="/feedback" className={`text-sm transition ${isActive('/feedback')}`}>
@@ -108,14 +105,14 @@ const Navbar = () => {
             </Link>
           )}
           {user?.role === 'officer' && (
-            <>
-              <Link to="/upload" className={`text-xs transition ${isActive('/upload')}`}>
-                Upload
-              </Link>
-              <Link to="/simulator" className={`text-xs transition ${isActive('/simulator')}`}>
-                Simulator
-              </Link>
-            </>
+            <Link to="/upload" className={`text-xs transition ${isActive('/upload')}`}>
+              Upload
+            </Link>
+          )}
+          {(user?.role === 'officer' || user?.role === 'expert') && (
+            <Link to="/simulator" className={`text-xs transition ${isActive('/simulator')}`}>
+              Simulator
+            </Link>
           )}
           {user?.role === 'citizen' && (
             <Link to="/feedback" className={`text-xs transition ${isActive('/feedback')}`}>

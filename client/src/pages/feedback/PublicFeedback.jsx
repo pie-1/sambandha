@@ -2,7 +2,7 @@
  * Public Feedback Page
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useDrafts } from '../../hooks/useDrafts';
 import { useFeedback } from '../../hooks/useFeedback';
 import DraftList from '../../components/drafts/DraftList';
