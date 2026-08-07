@@ -1,5 +1,5 @@
 /**
- * useMeeting Hook
+ * useMeeting Hook - For STEP 3 Collaboration
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 export const useMeeting = (draftId) => {
   const queryClient = useQueryClient();
 
+  // Get meeting link
   const { data: meeting, isLoading } = useQuery({
     queryKey: ['meeting', draftId],
     queryFn: async () => {
@@ -19,6 +20,7 @@ export const useMeeting = (draftId) => {
     enabled: !!draftId,
   });
 
+  // Create meeting
   const createMeeting = useMutation({
     mutationFn: async () => {
       const { data } = await axiosClient.post(API.MEETINGS.CREATE(draftId));
@@ -31,13 +33,31 @@ export const useMeeting = (draftId) => {
         window.open(data.meetingLink, '_blank');
       }
     },
-    onError: () => toast.error('Failed to create meeting'),
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to create meeting');
+    },
+  });
+
+  // Delete meeting
+  const deleteMeeting = useMutation({
+    mutationFn: async () => {
+      const { data } = await axiosClient.delete(API.MEETINGS.DELETE(draftId));
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['meeting', draftId] });
+      toast.success('Meeting ended');
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to delete meeting');
+    },
   });
 
   return {
     meeting,
     isLoading,
     createMeeting,
+    deleteMeeting,
     hasMeeting: !!meeting?.meetingLink,
     meetingLink: meeting?.meetingLink,
   };

@@ -1,16 +1,27 @@
 {
   "app": {
-    "name": "Sambandh",
-    "tagline": "Nepal Policy Co-Creation Platform"
+    "name": "Sambandha",
+    "tagline": "A Public Record of How Policy Gets Made",
+    "description": "Where Nepal's policies get written in the open"
   },
   "nav": {
-    "dashboard": "Dashboard",
+    "home": "Home",
     "policies": "Policies",
-    "upload": "Upload Draft",
-    "feedback": "Feedback",
+    "dashboard": "Dashboard",
+    "report": "Report",
+    "parliament": "Parliament",
+    "upload": "Upload",
     "login": "Login",
     "register": "Register",
     "logout": "Logout"
+  },
+  "hero": {
+    "eyebrow": "A Public Record of How Policy Gets Made",
+    "title": "सम्बन्ध",
+    "tagline": "Where Nepal's Policies Get Written in the Open",
+    "subtitle": "Officers draft, experts review, citizens vote — and every edit stays on the record.",
+    "cta": "Get Started",
+    "ctaDashboard": "Go to Dashboard"
   },
   "auth": {
     "login": "Login",
@@ -24,9 +35,44 @@
     "expert": "Expert",
     "officer": "Government Officer",
     "noAccount": "Don't have an account?",
-    "hasAccount": "Already have an account?"
+    "hasAccount": "Already have an account?",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "createAccount": "Create Account"
   },
   "dashboard": {
-    "welcome": "Welcome"
+    "title": "Dashboard",
+    "welcome": "Welcome",
+    "totalPolicies": "Total Policies",
+    "expertConsensus": "Expert Consensus",
+    "citizenReports": "Citizen Reports",
+    "criticalIssues": "Critical Issues"
+  },
+  "drafts": {
+    "title": "Policies",
+    "create": "Create Draft",
+    "upload": "Upload Draft",
+    "edit": "Edit Draft",
+    "finalize": "Finalize",
+    "status": "Status",
+    "sector": "Sector",
+    "district": "District",
+    "budget": "Budget Amount",
+    "description": "Description",
+    "content": "Policy Content",
+    "versionHistory": "Version History",
+    "comments": "Comments",
+    "noComments": "No comments yet"
+  },
+  "simulator": {
+    "title": "Impact Simulator",
+    "run": "Run ML Simulation",
+    "analyzing": "Analyzing policy impact...",
+    "successProbability": "Success Probability",
+    "jobsCreated": "Jobs Created",
+    "efficiency": "Efficiency",
+    "riskLevel": "Risk Level",
+    "riskFactors": "Risk Factors",
+    "recommendations": "Recommendations"
   }
 }

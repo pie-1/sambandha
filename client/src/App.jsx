@@ -2,11 +2,13 @@
  * Main App Component
  */
 
-import { Routes, Route, Navigate, useParams } from 'react-router-dom';
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import ProtectedRoute from './components/layout/ProtectedRoute';
+
 
 // Public Pages
 import Home from './pages/public/Home';
@@ -22,29 +24,26 @@ import Dashboard from './pages/dashboard/Dashboard';
 import DraftList from './pages/drafts/DraftList';
 import DraftDetail from './pages/drafts/DraftDetail';
 import DraftUpload from './pages/drafts/DraftUpload';
-import PublicFeedback from './pages/feedback/PublicFeedback';
+import ReportProblem from './pages/reports/ReportProblem';
+import ParliamentTopics from './pages/parliament/ParliamentTopics';
 import SimulatorPage from './pages/simulator/SimulatorPage';
 
-function HealthSimulatorRedirect() {
-  const { id } = useParams();
-  return <Navigate to={id ? `/drafts/${id}/simulate?model=health` : '/simulator?model=health'} replace />;
-}
 
 function App() {
   const { user, loading } = useAuth();
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-bodhi-cream">
+      <div className="min-h-screen flex items-center justify-center bg-cream">
         <div className="spinner"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-bodhi-cream">
+    <div className="min-h-screen flex flex-col bg-cream">
       <Navbar />
-      <main className="flex-1">
+      <main className="flex-1 w-full">
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
@@ -61,11 +60,9 @@ function App() {
             <Route path="/my-drafts" element={<DraftList />} />
             <Route path="/drafts/:id" element={<DraftDetail />} />
             <Route path="/upload" element={<DraftUpload />} />
-            <Route path="/feedback" element={<PublicFeedback />} />
-            <Route path="/simulator" element={<SimulatorPage standalone />} />
-            <Route path="/drafts/:id/simulate" element={<SimulatorPage />} />
-            <Route path="/ml/simulator" element={<HealthSimulatorRedirect />} />
-            <Route path="/drafts/:id/ml-simulate" element={<HealthSimulatorRedirect />} />
+            <Route path="/report" element={<ReportProblem />} />
+            <Route path="/parliament" element={<ParliamentTopics />} />
+            <Route path="/simulator/:id" element={<SimulatorPage />} />
           </Route>
           
           {/* Fallback */}

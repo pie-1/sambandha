@@ -1,6 +1,13 @@
 /**
  * Database Seed Script - One Health Focus
  * Run with: npm run seed
+ * 
+ * This script populates the database with sample data for development and testing.
+ * It creates users (Officers, Experts, Citizens), One Health policy drafts,
+ * expert comments, citizen votes, problem reports, and parliament topics.
+ * 
+ * The data is designed to showcase all features of the Sambandha platform
+ * and provide realistic demo content for the dashboard.
  */
 
 const mongoose = require("mongoose");
@@ -247,8 +254,9 @@ const seedDB = async () => {
     finalizedDraft.feedbackCount = feedbacks.length;
     await finalizedDraft.save();
 
-    // ===== CREATE CITIZEN REPORTS =====
+    // ===== CREATE CITIZEN REPORTS (More Reports for Dashboard) =====
     const reports = await Report.insertMany([
+      // Original reports
       {
         title: "No Maternity Center in Humla",
         description: "Women in Humla have to travel 3 days to reach a hospital for delivery. Pregnant women are at high risk.",
@@ -283,6 +291,87 @@ const seedDB = async () => {
         reporterPhone: "9841234567",
         urgency: "high",
         affectedPeople: 10000
+      },
+      // Additional reports for better dashboard data
+      {
+        title: "Air Pollution Crisis in Kathmandu Valley",
+        description: "Air quality index reaching dangerous levels. Children and elderly at high risk of respiratory diseases.",
+        category: "air_quality",
+        district: "Kathmandu",
+        municipality: "Kathmandu Metropolitan",
+        reporterId: citizenIds[1],
+        reporterPhone: "9852345678",
+        urgency: "high",
+        affectedPeople: 500000,
+        affectedChildren: 100000
+      },
+      {
+        title: "Doctor Shortage in Bajhang Health Post",
+        description: "No qualified doctor available at the health post for over 6 months. Patients are being referred to distant hospitals.",
+        category: "healthcare_access",
+        district: "Bajhang",
+        municipality: "Chainpur",
+        reporterId: citizenIds[0],
+        reporterPhone: "9841234567",
+        urgency: "high",
+        affectedPeople: 15000
+      },
+      {
+        title: "Dengue Outbreak in Chitwan",
+        description: "Over 200 confirmed dengue cases in the past month. Lack of awareness and preventive measures.",
+        category: "disease_prevention",
+        district: "Chitwan",
+        municipality: "Bharatpur",
+        reporterId: citizenIds[1],
+        reporterPhone: "9852345678",
+        urgency: "critical",
+        affectedPeople: 20000,
+        affectedChildren: 5000
+      },
+      {
+        title: "E. Coli Contamination in Biratnagar Water Supply",
+        description: "Water samples show high levels of E. coli contamination. 15 typhoid cases reported in the last 2 weeks.",
+        category: "water_quality",
+        district: "Morang",
+        municipality: "Biratnagar",
+        reporterId: citizenIds[0],
+        reporterPhone: "9841234567",
+        urgency: "high",
+        affectedPeople: 50000
+      },
+      {
+        title: "Severe Malnutrition in Karnali",
+        description: "Over 300 children under 5 showing signs of severe acute malnutrition. Food insecurity is the primary cause.",
+        category: "child_nutrition",
+        district: "Karnali",
+        municipality: "Jumla",
+        reporterId: citizenIds[1],
+        reporterPhone: "9852345678",
+        urgency: "critical",
+        affectedPeople: 10000,
+        affectedChildren: 300
+      },
+      {
+        title: "Zoonotic Disease Risk in Chitwan",
+        description: "Increased cases of animal-to-human disease transmission due to poor livestock management practices.",
+        category: "zoonotic_diseases",
+        district: "Chitwan",
+        municipality: "Bharatpur",
+        reporterId: citizenIds[0],
+        reporterPhone: "9841234567",
+        urgency: "medium",
+        affectedPeople: 8000
+      },
+      {
+        title: "Climate Change Health Impacts in Mustang",
+        description: "Changing weather patterns affecting local health. Increased cases of waterborne and vector-borne diseases.",
+        category: "climate_health",
+        district: "Mustang",
+        municipality: "Jomsom",
+        reporterId: citizenIds[1],
+        reporterPhone: "9852345678",
+        urgency: "medium",
+        affectedPeople: 3000
       }
     ]);
 
@@ -326,6 +415,28 @@ const seedDB = async () => {
         approvalPercentage: 100,
         createdBy: officerIds[1],
         linkedDraftId: drafts[1]._id
+      },
+      {
+        title: "Air Quality Crisis — Kathmandu Valley Action Plan",
+        description: "Parliament discussion on the deteriorating air quality in Kathmandu Valley and the need for an emergency action plan.",
+        sector: "environment",
+        district: "Kathmandu",
+        parliamentDate: new Date('2026-06-10'),
+        parliamentSession: "Environment Session 2026",
+        publicVotes: [
+          { citizenId: citizenIds[0], vote: "approve" },
+          { citizenId: citizenIds[1], vote: "approve" }
+        ],
+        totalVotes: 2,
+        approvalPercentage: 100,
+        expertOpinions: [
+          {
+            expertId: expertIds[1],
+            opinion: "The government needs to implement strict vehicle emission standards and promote electric vehicles."
+          }
+        ],
+        createdBy: officerIds[0],
+        linkedDraftId: null
       }
     ]);
 
@@ -380,3 +491,17 @@ const seedDB = async () => {
 };
 
 seedDB();
+
+/**
+ * This seed script creates comprehensive test data for the Sambandha platform.
+ * It includes:
+ * - 6 Users (2 Officers, 2 Experts, 2 Citizens)
+ * - 3 One Health Drafts (health, environment, one_health)
+ * - Expert Consensus and Comments
+ * - Citizen Votes (Feedback)
+ * - 9 Citizen Reports (covering all One Health categories)
+ * - 3 Parliament Topics with voting and expert opinions
+ * 
+ * The data is designed to showcase all platform features and provide
+ * realistic demo content for the dashboard and analytics.
+ */

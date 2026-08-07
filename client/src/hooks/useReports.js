@@ -1,5 +1,5 @@
 /**
- * useReports Hook 
+ * useReports Hook - One Health reporting
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -46,7 +46,7 @@ export const useReports = () => {
     },
   });
 
-  // Create report with images
+  // Create report
   const createReport = useMutation({
     mutationFn: async (reportData) => {
       const res = await axiosClient.post(API.REPORTS.CREATE, reportData);
@@ -102,8 +102,3 @@ export const useReports = () => {
     useReport,
   };
 };
-
-
-
-// designed to manage citizen reports by fetching report data , creating new reports, retrieving statistics
-// and summeries 

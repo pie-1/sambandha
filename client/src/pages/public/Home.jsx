@@ -1,16 +1,18 @@
 /**
- * Home Page - Public
- * Complete landing page with Landing, Features, and Footer sections
+ * Home Page - Full Width
  */
 
-import LandingSection from './LandingSection';
-import FeaturesSection from './FeaturesSection';
+import React from 'react';
+import Hero from './Hero';
+import Features from './Features';
+import HowItWorks from './HowItWorks';
 
 const Home = () => {
   return (
-    <div className="min-h-screen">
-      <LandingSection />
-      <FeaturesSection />
+    <div className="w-full">
+      <Hero />
+      <Features />
+      <HowItWorks />
     </div>
   );
 };
