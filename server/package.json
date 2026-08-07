@@ -12,6 +12,8 @@
     "seed:priorities": "node seed/seedPriorities.js",
     "seed:engagement": "node seed/seedEngagement.js",
     "ml:test": "node scripts/mlAuthenticity.js",
+    "train:python": "node scripts/trainPython.js",
+    "export:records": "node scripts/exportRecords.js",
     "seed:reset": "node seed/seed.js --reset"
 
   },

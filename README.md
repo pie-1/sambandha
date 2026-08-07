@@ -163,6 +163,16 @@ uv run uvicorn app.main:app --port 8000
 - `POST /predict/development` + `POST /sector/analysis` — projections, trend
   and aggregates over the real ledger, byte-identical to the JS engine
 - `GET /metadata` — sample size, accuracy/AUC/R²/MAE, trained-at timestamp
+- `npm run train:python` (in `server/`) — live-training demo: exports the real
+  records from MongoDB, runs the notebook-style `ml-service/demo_train.py`
+  (step-by-step cells, gradient-descent loss curve, per-program table) and
+  pushes the freshly trained models to the running service
+- `ml-service/ml-pipeline.ipynb` — the full data-science pipeline as a Jupyter
+  notebook (charts, per-program tables, loss curve, holdout metrics, live push).
+  Run: `cd server && npm run export:records`, then
+  `cd ml-service && uv run jupyter notebook ml-pipeline.ipynb` (kernel
+  `Sambandha (ml-service)`, already registered via
+  `uv run python -m ipykernel install --user --name sambandha`)
 - On Node server startup the service is auto-warmed (`[ml-python]` log line);
   if it is unreachable every call falls back to the JS reference models, so
   the app never breaks without Python
