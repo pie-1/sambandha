@@ -37,6 +37,15 @@ const API = {
     SIMULATE: '/ml/health/simulate',
     METADATA: '/ml/health/metadata',
   },
+  PRIORITIES: {
+    VOTE: '/priorities',
+    RANKING: '/priorities/ranking',
+  },
+  PROJECTS: {
+    BASE: '/projects',
+    STATS: '/projects/stats',
+  },
+  FEEDBACK_DISTRICTS: (id) => `/drafts/${id}/feedback/summary/districts`,
 };
 
 export default API;

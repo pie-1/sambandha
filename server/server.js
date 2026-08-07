@@ -18,9 +18,10 @@ const commentRoutes = require("./routes/commentRoutes");
 const feedbackRoutes = require("./routes/feedbackRoutes");
 const meetingRoutes = require("./routes/meetingRoutes");
 const simulatorRoutes = require("./routes/simulatorRoutes");
-const reportRoutes = require("./routes/reportRoutes");
-const parliamentRoutes = require("./routes/parliamentRoutes");
-const healthMlRoutes = require("./routes/healthMlRoutes"); // ✅ Friend's ML routes
+const healthMlRoutes = require("./routes/healthMlRoutes");
+const priorityRoutes = require("./routes/priorityRoutes");
+const projectRoutes = require("./routes/projectRoutes");
+const { warmUp: warmUpPythonMl } = require("./services/ml/pythonBridge");
 
 const app = express();
 
@@ -44,9 +45,10 @@ app.use("/api/drafts/:draftId/comments", commentRoutes);
 app.use("/api/drafts/:draftId/feedback", feedbackRoutes);
 app.use("/api/meetings", meetingRoutes);
 app.use("/api/simulate", simulatorRoutes);
-app.use("/api/reports", reportRoutes);
-app.use("/api/parliament", parliamentRoutes);
-app.use("/api/ml", healthMlRoutes); // ✅ Friend's ML routes mounted
+app.use("/api/ml/health", healthMlRoutes);
+app.use("/api/priorities", priorityRoutes);
+app.use("/api/projects", projectRoutes);
+
 
 // ===== ERROR HANDLING =====
 app.use((req, res) => {
@@ -65,8 +67,9 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log(`✅ MongoDB Connected`);
     app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📍 http://localhost:${PORT}/api`);
+      console.log(` Server running on port ${PORT}`);
+      console.log(` http://localhost:${PORT}/api`);
+      warmUpPythonMl();
     });
   })
   .catch(err => {

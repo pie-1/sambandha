@@ -62,6 +62,24 @@
 - One-tap approve/disapprove on finalized policies
 - Real-time sentiment tracking
 - Anonymous feedback with phone verification (mock)
+- **"What neighbors think"** — per-district approve/disapprove breakdown on
+  the feedback summary (no login needed to view on the public policy page)
+
+### 🗳️ District Priorities Board
+On `/policies`, citizens can vote for their top 3 priority sectors (phone +
+district, no login) and watch the live community ranking — overall and
+per-district. One vote per phone; ranked scoring (3/2/1 points).
+
+### 📊 Project Tracking Board
+A public transparency dashboard at `/tracking` (no login required) showing
+every provincial capital project from the seeded `projects` ledger:
+
+- KPI cards (total projects, capital, avg completion, cost overrun, jobs)
+- Status-mix pie, capital by province/sector, sector completion health charts
+- Filterable ledger table (province × sector × status)
+
+Data is sourced from the MoF Red Book and provincial budget statements
+(FY 2078/79–2080/81).
 
 ### 🎥 Live Meetings
 - Integrated video meetings using Jitsi Meet
@@ -84,10 +102,18 @@ runs) that produces a complete six-section report in one run:
 4. **Health systems analysis** (Health & Nutrition sector) — policy success
    probability (logistic regression trained with gradient descent), per-program
    coverage gains per crore, forecast insurance claims from the claimant profile,
-   plus an expert-consensus layer
-5. **Matched historical precedents** — closest projects in the provincial ledger
-6. **Detailed insights** — strengths, risks and recommendations, plus a narrative
-   report summary
+   plus an expert-consensus layer. Inference runs through the **Python ML
+   microservice** (scikit-learn) when it is running, with automatic fallback
+   to the in-process JS reference models (`engine: python` vs
+   `engine: js-fallback` is reported on every result).
+ 5. **Matched historical precedents** — closest projects in the provincial ledger.
+    The development projection engine (jobs, efficiency, completion, overrun,
+    confidence) plus sector trend and aggregates also compute in the **Python
+    microservice** (`/predict/development`, `/sector/analysis`) over the real
+    ledger, with the identical formula running in JS as the fallback
+    (`historical.engine: python` vs `js-fallback`).
+ 6. **Detailed insights** — strengths, risks and recommendations, plus a narrative
+    report summary
 
 Draft-linked runs are **sector-bound**: the simulation always evaluates the
 draft's own sector (enforced client-side and server-side), so a health draft
@@ -115,6 +141,44 @@ The policy-impact engine reads its nearest-neighbour ledger from `projects`
 and the ML models train on `healthrecords` at first use — so model metadata
 (e.g. `sampleSize`) reflects exactly what is stored.
 
+### 🐍 Python ML Microservice
+The health ML models are trained in real Python with scikit-learn when the
+service is running, so the training pipeline is inspectable as standard data
+science code. The development projection engine (distance-weighted k-NN over
+the 224-project ledger) runs there too:
+
+```bash
+cd ml-service
+uv venv --python 3.14            # first time only
+uv pip install -r pyproject.toml
+uv run uvicorn app.main:app --port 8000
+```
+
+- `POST /train` — the Node app exports the same records it would train its JS
+  models on (MongoDB `healthrecords` + the `projects` ledger, or the
+  deterministic generators) and pushes them to the service; artifacts are
+  persisted to `ml-service/models/`
+- `POST /predict/{policy,budget,claims}` — inference, returned in exactly the
+  shapes the JS models produce
+- `POST /predict/development` + `POST /sector/analysis` — projections, trend
+  and aggregates over the real ledger, byte-identical to the JS engine
+- `GET /metadata` — sample size, accuracy/AUC/R²/MAE, trained-at timestamp
+- `npm run train:python` (in `server/`) — live-training demo: exports the real
+  records from MongoDB, runs the notebook-style `ml-service/demo_train.py`
+  (step-by-step cells, gradient-descent loss curve, per-program table) and
+  pushes the freshly trained models to the running service
+- `ml-service/ml-pipeline.ipynb` — the full data-science pipeline as a Jupyter
+  notebook (charts, per-program tables, loss curve, holdout metrics, live push).
+  Run: `cd server && npm run export:records`, then
+  `cd ml-service && uv run jupyter notebook ml-pipeline.ipynb` (kernel
+  `Sambandha (ml-service)`, already registered via
+  `uv run python -m ipykernel install --user --name sambandha`)
+- On Node server startup the service is auto-warmed (`[ml-python]` log line);
+  if it is unreachable every call falls back to the JS reference models, so
+  the app never breaks without Python
+
+Set `ML_SERVICE_URL` (default `http://127.0.0.1:8000`) in `server/.env`.
+
 ### 🌐 Internationalization
 - English/Nepali language toggle
 - Full UI translation support
@@ -133,6 +197,7 @@ and the ML models train on `healthrecords` at first use — so model metadata
 | Mongoose | 8.0.3 | ODM |
 | JWT | 9.0.2 | Authentication |
 | Bcrypt | 2.4.3 | Password hashing |
+| Python + FastAPI + scikit-learn | 3.14 / 0.141 / 1.9 | ML training & inference microservice (`ml-service/`) |
 
 ### Frontend
 | Technology | Version | Purpose |
@@ -308,6 +373,8 @@ After seeding the database, you can use these test accounts:
 | `JWT_SECRET` | JWT secret key | Required |
 | `JWT_EXPIRE` | JWT expiration time | `7d` |
 | `CLIENT_URL` | Client URL for CORS | `http://localhost:5173` |
+| `ML_SERVICE_URL` | Python ML microservice base URL | `http://127.0.0.1:8000` |
+| `ML_TIMEOUT_MS` | ML service request timeout | `4000` |
 
 ### Client (`client/.env`)
 | Variable | Description | Default |
@@ -434,6 +501,21 @@ sambandh/
 |--------|----------|-------------|---------------|
 | POST | `/api/drafts/:draftId/feedback` | Submit feedback | Citizen only |
 | GET | `/api/drafts/:draftId/feedback/summary` | Get feedback summary | Yes |
+| GET | `/api/drafts/:draftId/feedback/summary/districts` | Get per-district sentiment breakdown | Yes |
+
+### Priority Endpoints (public — no login)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/priorities` | Save/update a citizen priority vote (phone, district, up to 3 sectors) | No |
+| GET | `/api/priorities/ranking?district=` | Community ranking (3/2/1 points), optional district filter | No |
+
+### Project Tracking Endpoints (public — no login)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/projects?province=&sector=&status=&year=` | Filterable project ledger | No |
+| GET | `/api/projects/stats` | Aggregates: totals, status mix, by-province, by-sector | No |
 
 ### Meeting Endpoints
 
@@ -531,7 +613,9 @@ curl -X POST http://localhost:5000/api/drafts/YOUR_DRAFT_ID/feedback \
 
 ### Seed Database
 ```bash
-npm run seed
+npm run seed            # app demo data (users, drafts, comments, feedback)
+npm run seed:sim        # simulation data (projects ledger + health ML records)
+npm run seed:priorities # demo district-priority votes (idempotent, upserts by phone)
 ```
 
 ### Seed Output Example

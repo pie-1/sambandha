@@ -1,0 +1,180 @@
+SAMBANDHA - ML & SIMULATION PITCH
+==================================
+
+--------------------------------------------------------------------------------
+30-SECOND ELEVATOR PITCH
+--------------------------------------------------------------------------------
+
+Sambandha is a civic platform where Nepali citizens don't just read policy
+drafts — they *pressure-test* them. When a district official drops a draft
+budget, citizens comment and vote, and our simulation engine answers the
+question every Nepali wants answered: "What does this actually do for us?"
+It projects jobs, efficiency and completion risk from a real ledger of 224
+provincial projects, and — for health policy — predicts success probability,
+coverage gains per crore, and insurance claim volumes, using models trained
+in Python with scikit-learn. Every number on screen traces back to a
+published source: the MoF Red Book FY 2080/81, NDHS 2022, NHIF and Census
+2021. We call it a calibrated simulation — anchored in real public data,
+surfaced with its assumptions, so citizens argue about policy, not about
+the math.
+
+--------------------------------------------------------------------------------
+3-MINUTE DEMO NARRATIVE (what the judges see)
+--------------------------------------------------------------------------------
+
+1. THE DRAFT
+   "Here's a provincial health insurance expansion draft sitting in our
+   portal — already reviewed by an expert and two district officers, with
+   citizens from 5 districts having weighed in. We simulated it as-is."
+
+2. THE CONSENSUS LAYER (civic)
+   Show comments with role badges and Nepali/English sentiment; the
+   approve/disapprove votes; the "what your neighbors think" district map.
+   One line: "Citizens tell us the DEMAND side — is this draft politically
+   and socially viable?"
+
+3. THE ML LAYER (evidence)
+   Run the draft through the simulator — "Now the SUPPLY side — can we
+   deliver?"
+   - Policy success probability from the logistic regression (trained on
+     198 policy outcome records, 90% accuracy, 0.889 AUC)
+   - Per-program coverage gains per crore (per-program linear regressions,
+     R² 0.51)
+   - Claims forecast from the citizen profile (400 records, R² 0.957 — a
+     citizen in this district filing ~NPR 121,000 in claims, MAE ~NPR 15k)
+
+4. THE PROJECTION ENGINE
+   Nearest-project matches pulled live from the 224-project provincial
+   ledger — jobs, efficiency, completion, overrun risk, with a confidence
+   score. Highlight the match table: "These are real projects from the
+   ledger that look like your policy — the engine averages their outcomes,
+   weighted by how similar they are."
+
+5. THE HONESTY BEAT (say this deliberately)
+   "These rows are deterministic synthetic records calibrated to published
+   data — we don't pretend we trained on real outcome data, because Nepal
+   doesn't publish outcome data at this granularity. That's why every
+   screen reports the engine, sample size, and sources."
+
+6. THE ENGINEERING BEAT
+   Kill the ML service live (or mention it): the app doesn't break — it
+   falls back to in-process reference models, and every response is tagged
+   "engine: python" vs "engine: js-fallback". Model metadata (accuracy,
+   AUC, R², trained-at) is served to the UI.
+
+--------------------------------------------------------------------------------
+THE HONEST FRAMING (use this verbatim, it's your strongest move)
+--------------------------------------------------------------------------------
+
+"We trained on deterministic, synthetic records calibrated to real public
+statistics — the anchors are real (Red Book, NDHS, NHIF, Census), the rows
+are generated, and the UI says so. We're demonstrating the pipeline: how a
+government could train this on real outcome data tomorrow, with the same
+code. The honest claim is 'calibrated simulation,' not 'prediction.'"
+
+Judges will respect this more than any faked accuracy number.
+
+--------------------------------------------------------------------------------
+QUESTIONS TO WATCH OUT FOR — WITH THE ANSWERS THAT LAND
+--------------------------------------------------------------------------------
+
+Q1. Your data is synthetic — why should I believe any of it?
+A1. The anchors are real and citable. Every generated record is a
+    deterministic function of published statistics (Red Book provincial
+    budgets, NDHS coverage rates, NHIF claim patterns), and the UI
+    attributes every estimate to its source. We're building the pipeline
+    governments need; the calibration is the honest step we can take today.
+    Swap the generator for a real outcome dataset and the same code trains
+    the same models.
+
+Q2. What is actually machine learning here vs. statistics?
+A2. Three trained models: logistic regression trained with gradient descent
+    (success probability), per-program linear regression (impact), and a
+    claims regression (forecast). Plus a distance-weighted k-NN projection
+    engine over the project ledger. The honest breakdown: k-NN and linear
+    models are simple — deliberately, because a district official should be
+    able to explain them. What's REAL ML is the training pipeline,
+    validation, and metadata — not hand-waving.
+
+Q3. Why do you have the same models in JavaScript and Python? Is Python
+    cosmetic?
+A3. Python is the primary engine; the JS reference models exist as a
+    reliability layer so the app never dies when the ML service is down —
+    we demoed the fallback live. Also: the models are trained on exactly
+    the same records in both, and we verified byte-identical outputs (same
+    jobs, same confidence, same probabilities). Python isn't a logo on a
+    slide — the sklearn training, joblib artifacts and REST endpoints are
+    the actual running system.
+
+Q4. R² = 0.51 on budget impact — that's weak. Why?
+A4. It's the honest number for a hard problem: predicting province-level
+    health coverage outcomes from budget alone. The claims model
+    (R² 0.957) shows the pipeline can fit tight when the signal is strong.
+    0.51 tells the citizen something real — budget explains about half the
+    variance; the rest is implementation. We surface it instead of hiding
+    it.
+
+Q5. How is the confidence score (20–96) computed? Is it statistical?
+A5. It's a similarity score: distance between the input and the 6 nearest
+    ledger matches in budget/province space, converted to a confidence.
+    It is NOT a statistical confidence interval — we say that explicitly
+    in the UI. It measures "how well do historical precedents cover this
+    scenario?" — that's the honest claim.
+
+Q6. How does sentiment analysis work?
+A6. A transparent rule-based lexicon (English + Nepali, including a
+    bad-word list) with per-comment majority voting — not a black-box
+    model. For a hackathon demo it's fast and explainable; a production
+    version would fine-tune on Nepali corpora. Honesty over opacity.
+
+Q7. Can this actually predict? Won't this mislead citizens?
+A7. We never say "this will happen." Every output is labeled simulation
+    with sources and sample sizes; we show assumptions and the matched
+    precedents so a citizen can see the reasoning chain. If anything, it
+    makes policy debate better — citizens argue with evidence on screen,
+    not rumors.
+
+Q8. What happens at scale / in production?
+A8. The ML service is stateless behind an API — it scales horizontally;
+    artifacts persist to disk so it doesn't retrain on every boot;
+    retraining is triggered when the dataset version changes. The app was
+    built to survive the ML service being down — a production-grade
+    assumption most hackathons skip.
+
+Q9. Privacy? Citizens submit comments and votes.
+A9. Comments are public by design (it's a civic forum). Votes are
+    phone-unique per sector, votes are upserts (one per sector), and auth
+    uses httpOnly cookies — no tokens in localStorage. We'd add anonymized
+    hashing of phone numbers before any real deployment.
+
+Q10. What would you do with another 6 months?
+A10. Real outcome datasets from DHIS2/NHSS-IP, a Nepali-language fine-tuned
+     sentiment model, time-series claims forecasting, uncertainty bounds
+     from proper statistical methods, and a peer-review round where
+     officials can flag incorrect projections in-platform.
+
+Q11. What does the citizen actually DO with this?
+A11. They can run the simulator themselves on the draft page, change
+     budget, see jobs/confidence change, see their district's stance, and
+     their voice enters the official review flow. The transparency
+     dashboard (tracking page) shows the whole capital plan — 224 projects,
+     status by province, delayed projects — so citizens can audit the
+     budget their government already spends.
+
+Q12. Is it Nepali?
+A12. The interface is fully bilingual (English/Nepali toggle, Noto Sans
+     Devanagari), sentiment handles Nepali text, and all sectors/provinces
+     use Nepali naming conventions.
+
+--------------------------------------------------------------------------------
+FOUR THINGS NOT TO SAY
+--------------------------------------------------------------------------------
+
+1. Don't call it "prediction" — call it "projection/simulation"
+   (judges will test this).
+2. Don't claim real outcome data — own the synthetic-calibrated framing
+   FIRST.
+3. Don't say "our AI" — name the models (logistic regression, linear
+   regression, k-NN).
+4. Don't oversell R² 0.51 — say it with the claims model's 0.957 for
+   contrast.

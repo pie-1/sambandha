@@ -13,7 +13,7 @@ import toast from 'react-hot-toast';
 const PublicFeedback = () => {
   const { drafts, isLoading } = useDrafts({ status: 'finalized' });
   const [selectedDraft, setSelectedDraft] = useState(null);
-  const { summary, submitFeedback } = useFeedback(selectedDraft?._id);
+  const { summary, byDistrict, districtsLoading, submitFeedback } = useFeedback(selectedDraft?._id);
 
   const handleFeedback = async (reaction) => {
     if (!selectedDraft) return;
@@ -67,7 +67,7 @@ const PublicFeedback = () => {
                 <FeedbackButton onFeedback={handleFeedback} />
               </div>
 
-              <FeedbackSummary summary={summary} />
+              <FeedbackSummary summary={summary} byDistrict={byDistrict} districtsLoading={districtsLoading} />
 
               <button
                 onClick={() => setSelectedDraft(null)}

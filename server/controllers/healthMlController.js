@@ -8,9 +8,7 @@ const {
   PROVINCE_HEALTH,
   HEALTH_PROGRAMS,
 } = require('../services/ml/data');
-const { getModel: getSuccessModel } = require('../services/ml/logisticRegression');
-const { getModels: getBudgetModels } = require('../services/ml/budgetModel');
-const { getModel: getClaimsModel } = require('../services/ml/claimsModel');
+const { getSuccessModel, getBudgetModels, getClaimsModel } = require('../services/ml/pythonBridge');
 
 exports.getMetadata = async (_req, res) => {
   try {
