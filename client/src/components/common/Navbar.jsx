@@ -22,12 +22,12 @@ const Navbar = () => {
 
   const isActive = (path) => location.pathname === path;
 
-  // ✅ Parliament is visible to ALL logged-in users
+  
   const navItems = user ? [
     { path: '/', label: 'Home' },
     { path: '/dashboard', label: 'Dashboard' },
     { path: '/policies', label: 'Policies' },
-    { path: '/parliament', label: 'Parliament' }, // ✅ Everyone can see
+    { path: '/parliament', label: 'Parliament' }, 
     ...(user.role === 'citizen' ? [{ path: '/report', label: 'Report' }] : []),
     ...(user.role === 'officer' ? [{ path: '/upload', label: 'Upload' }] : []),
   ] : [

@@ -5,27 +5,6 @@ import { useTranslation } from "react-i18next";
 import { ArrowRight } from "lucide-react";
 import { gsap } from "gsap";
 
-/**
- * Two fixes from the last version:
- *
- * 1. Overlay was four stacked near-black layers (base /80, a gradient, a
- *    radial down to /85, a bottom fade) — compounded, that's close to
- *    100% black, which is why the video was invisible and the amber/white
- *    text read as dull grey-brown instead of bright. Now it's a single
- *    wash plus one directional gradient, tuned so text stays legible
- *    without erasing the footage.
- *
- * 2. `.from()` with no reduced-motion guard and no fallback state means
- *    if the timeline never completes (interrupted mount, a re-render,
- *    prefers-reduced-motion, GSAP failing to load) everything is left at
- *    its opacity:0 starting point permanently — which is exactly what the
- *    screenshot showed, including "SCROLL", which isn't even animated,
- *    just genuinely low-opacity by design (text-white/60 on dark). The
- *    fix: reduced-motion sets final state immediately, and the timeline
- *    uses fromTo (explicit start AND end) rather than from (start only,
- *    end inferred), so there's no ambiguous state to get stuck in.
- */
-
 function VideoBackground({ onError }) {
   return (
     <>
@@ -39,11 +18,7 @@ function VideoBackground({ onError }) {
       >
         <source src="/videos/landing_video3.mp4" type="video/mp4" />
       </video>
-
-      {/* Single wash — enough for text contrast, not enough to erase the video */}
       <div className="absolute inset-0 bg-slate-950/55" />
-
-      {/* One directional gradient for depth at the edges, nothing multiplicative on top */}
       <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/20 to-slate-950/80" />
     </>
   );
@@ -63,7 +38,6 @@ export default function Hero() {
     const targets = [titleRef.current, subtitleRef.current, buttonRef.current, scrollRef.current];
     const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-    // Safety net first: whatever happens below, these are visible.
     gsap.set(targets, { opacity: 1, y: 0 });
 
     if (mql.matches) return;
@@ -85,8 +59,6 @@ export default function Hero() {
           <div className="absolute inset-0 bg-slate-950/60" />
         </>
       )}
-
-      {/* Decorative blur — kept subtle, sits well behind the z-10 content */}
       <div className="absolute -top-52 left-1/2 h-[700px] w-[700px] -translate-x-1/2 rounded-full bg-amber-400/10 blur-[180px]" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-8 text-center">

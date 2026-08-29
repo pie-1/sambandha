@@ -1,7 +1,3 @@
-/**
- * Parliament Topics Page - Citizens Can Vote
- */
-
 import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useParliament } from '../../hooks/useParliament';
@@ -16,14 +12,13 @@ const ParliamentTopics = () => {
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [votingLoading, setVotingLoading] = useState(false);
 
-  // ✅ Handle vote with loading state and refetch
   const handleVote = async (topicId) => {
     setVotingLoading(true);
     try {
       const result = await voteOnTopic.mutateAsync({ id: topicId, vote: 'approve' });
       if (result) {
-        toast.success('✅ Vote recorded successfully!');
-        // ✅ Refetch topics to update vote count
+        toast.success('Thank you');
+
         await refetch();
       }
     } catch (error) {
@@ -40,7 +35,7 @@ const ParliamentTopics = () => {
     }
     const result = await addExpertOpinion.mutateAsync({ id: topicId, opinion });
     if (result) {
-      toast.success('✅ Expert opinion added!');
+      toast.success('Expert opinion added!');
       setOpinion('');
       setSelectedTopic(null);
       await refetch();
@@ -71,7 +66,7 @@ const ParliamentTopics = () => {
         ) : (
           topics.map((topic) => (
             <div key={topic._id} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              {/* Header */}
+              
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <h3 className="text-xl font-bold text-bodhi-navy">{topic.title}</h3>
@@ -102,10 +97,9 @@ const ParliamentTopics = () => {
                 </div>
               </div>
 
-              {/* Description */}
-              <p className="text-gray-600 mt-3 text-sm">{topic.description}</p>
 
-              {/* ✅ VOTING - Single Vote Button for Citizens */}
+              <p className="text-gray-600 mt-3 text-sm">{topic.description}</p>
+            
               {user?.role === 'citizen' && (
                 <div className="flex items-center gap-3 mt-4 pt-4 border-t border-gray-100">
                   <button
@@ -119,9 +113,7 @@ const ParliamentTopics = () => {
                     {topic.totalVotes || 0} votes received
                   </span>
                 </div>
-              )}
-
-              {/* ✅ Experts can give opinions */}
+              )}             
               {user?.role === 'expert' && (
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   {selectedTopic === topic._id ? (
@@ -158,8 +150,7 @@ const ParliamentTopics = () => {
                   )}
                 </div>
               )}
-
-              {/* Expert Opinions Display */}
+              
               {topic.expertOpinions?.length > 0 && (
                 <div className="mt-4 p-3 bg-gray-50 rounded-lg">
                   <p className="text-xs font-medium text-gray-500 mb-2">👨‍🔬 Expert Opinions</p>
