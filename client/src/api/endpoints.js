@@ -1,10 +1,12 @@
-const API = {  
+const API = {
+  
   AUTH: {
-    REGISTER: '/auth/register',
-    LOGIN: '/auth/login',
-    LOGOUT: '/auth/logout',
-    ME: '/auth/me',
-  },  
+    REGISTER: '/auth/register',      
+    LOGIN: '/auth/login',            
+    LOGOUT: '/auth/logout',          
+    ME: '/auth/me',                  
+  },
+  
   DRAFTS: {
     BASE: '/drafts',
     GET_ALL: '/drafts',
@@ -15,7 +17,8 @@ const API = {
     CONSENSUS: (id) => `/drafts/${id}/consensus`,
     IMPLEMENTATION: (id) => `/drafts/${id}/implementation`,
     DASHBOARD: '/drafts/one-health-dashboard',
-  },  
+  },
+  
   REPORTS: {
     BASE: '/reports',
     CREATE: '/reports',
@@ -26,6 +29,7 @@ const API = {
     BY_CATEGORY: (category) => `/reports/category/${category}`,
     GET_ONE: (id) => `/reports/${id}`,
   },
+  
   PARLIAMENT: {
     BASE: '/parliament',
     GET_ALL: '/parliament',
@@ -33,21 +37,25 @@ const API = {
     CREATE: '/parliament',
     VOTE: (id) => `/parliament/${id}/vote`,
     EXPERT_OPINION: (id) => `/parliament/${id}/expert-opinion`,
-  },  
+  },
+  
   MEETINGS: {
     CREATE: (draftId) => `/meetings/drafts/${draftId}`,
     GET: (draftId) => `/meetings/drafts/${draftId}`,
     DELETE: (draftId) => `/meetings/drafts/${draftId}`,
-  },  
+  },
+  
   FEEDBACK: {
     SUBMIT: (draftId) => `/drafts/${draftId}/feedback`,
     SUMMARY: (draftId) => `/drafts/${draftId}/feedback/summary`,
     GET_ALL: (draftId) => `/drafts/${draftId}/feedback`,
-  },  
+  },
+  
   COMMENTS: {
     GET_ALL: (draftId) => `/drafts/${draftId}/comments`,
     CREATE: (draftId) => `/drafts/${draftId}/comments`,
-  },  
+  },
+  
   SIMULATOR: '/simulate',
 };
 
