@@ -1,13 +1,11 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "cd client && npm run build",
   "installCommand": "npm install",
   "outputDirectory": "client/dist",
-  "framework": "vite",
-  "rootDirectory": "client",
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/client/dist/index.html"
     }
   ]
 }
