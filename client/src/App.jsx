@@ -1,25 +1,16 @@
-/**
- * Main App Component
- */
-
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import ProtectedRoute from './components/layout/ProtectedRoute';
-
-
-// Public Pages
 import Home from './pages/public/Home';
 import PublicPolicyList from './pages/public/PublicPolicyList';
 import PublicDraftDetail from './pages/public/PublicDraftDetail';
 
-// Auth Pages
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 
-// Protected Pages
 import Dashboard from './pages/dashboard/Dashboard';
 import DraftList from './pages/drafts/DraftList';
 import DraftDetail from './pages/drafts/DraftDetail';
@@ -50,7 +41,7 @@ function App() {
           <Route path="/policies" element={<PublicPolicyList />} />
           <Route path="/policies/:id" element={<PublicDraftDetail />} />
           
-          {/* Auth Routes */}
+          
           <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
           <Route path="/register" element={!user ? <Register /> : <Navigate to="/dashboard" />} />
           
@@ -65,7 +56,7 @@ function App() {
             <Route path="/simulator/:id" element={<SimulatorPage />} />
           </Route>
           
-          {/* Fallback */}
+          
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
