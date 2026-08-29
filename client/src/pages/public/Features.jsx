@@ -1,8 +1,3 @@
-/**
- * Features Section - Homepage
- * Shows all platform features with icons
- */
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -58,8 +53,7 @@ const Features = () => {
 
   return (
     <section className="w-full py-16 sm:py-20 bg-white">
-      <div className="w-full px-4 sm:px-8 lg:px-12">
-        {/* Header */}
+      <div className="w-full px-4 sm:px-8 lg:px-12">        
         <div className="text-center max-w-3xl mx-auto mb-14">
           <p className="text-xs uppercase tracking-[0.25em] text-sambandh-brass mb-4 font-medium">
             Platform Features
@@ -71,8 +65,6 @@ const Features = () => {
             Every feature is designed to make policy-making open, accountable, and participatory.
           </p>
         </div>
-
-        {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
           {features.map((feature, index) => {
             const Icon = feature.icon;
@@ -92,8 +84,6 @@ const Features = () => {
                 <p className="text-gray-600 leading-relaxed text-sm">
                   {feature.description}
                 </p>
-
-                {/* Small indicator */}
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <span className="text-xs text-gray-400">
                     {feature.title === 'Policy Drafting' && '📝 For Officers'}
@@ -109,11 +99,11 @@ const Features = () => {
           })}
         </div>
 
-        {/* SDG Alignment */}
+        
         <div className="mt-16 max-w-4xl mx-auto bg-sambandh-paper rounded-2xl p-8 border border-gray-100">
           <div className="flex items-center gap-3 mb-4">
             <Shield className="w-6 h-6 text-sambandh-brass" />
-            <h3 className="text-xl font-semibold text-bodhi-navy">Aligned with SDG 16</h3>
+            <h3 className="text-xl font-semibold text-bodhi-navy">Aligned with Good Governance</h3>
           </div>
           <p className="text-gray-600 leading-relaxed">
             Sambandha contributes to <strong>Peace, Justice and Strong Institutions</strong> by making 

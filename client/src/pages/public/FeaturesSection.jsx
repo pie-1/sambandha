@@ -1,8 +1,3 @@
-/**
- * Features Section
- * Platform features and how it works
- */
-
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -56,8 +51,7 @@ const FeaturesSection = () => {
 
   return (
     <section className="py-20 bg-white">
-      <div className="container-custom">
-        {/* Section Header */}
+      <div className="container-custom">        
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="inline-block px-4 py-1.5 rounded-full bg-bodhi-gold/10 text-bodhi-gold text-xs font-semibold tracking-wider uppercase mb-4">
             Platform Features
@@ -71,25 +65,19 @@ const FeaturesSection = () => {
             for collaborative policy-making in Nepal.
           </p>
         </div>
-
-        {/* Features Grid */}
+        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => (
             <div
               key={index}
               className={`rounded-2xl p-6 border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${feature.color}`}
-            >
-              {/* Icon with background */}
+            >              
               <div className={`w-14 h-14 rounded-xl ${feature.iconBg} flex items-center justify-center text-3xl mb-4`}>
                 {feature.icon}
               </div>
-
-              {/* Title */}
               <h3 className="text-xl font-serif text-bodhi-navy mb-2">
                 {feature.title}
-              </h3>
-
-              {/* Description */}
+              </h3>              
               <p className="text-sm text-gray-600 leading-relaxed">
                 {feature.description}
               </p>
@@ -97,7 +85,7 @@ const FeaturesSection = () => {
           ))}
         </div>
 
-        {/* How It Works */}
+        
         <div className="mt-20">
           <div className="text-center mb-12">
             <span className="text-sm font-medium text-bodhi-gold uppercase tracking-wider">Process</span>
@@ -107,7 +95,7 @@ const FeaturesSection = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Step 1 */}
+            
             <div className="text-center group">
               <div className="w-16 h-16 rounded-full bg-bodhi-gold/10 flex items-center justify-center mx-auto mb-4 text-2xl font-mono font-bold text-bodhi-gold transition-transform duration-300 group-hover:scale-110">
                 1
@@ -118,7 +106,7 @@ const FeaturesSection = () => {
               </p>
             </div>
 
-            {/* Step 2 */}
+            
             <div className="text-center group">
               <div className="w-16 h-16 rounded-full bg-bodhi-gold/10 flex items-center justify-center mx-auto mb-4 text-2xl font-mono font-bold text-bodhi-gold transition-transform duration-300 group-hover:scale-110">
                 2
@@ -129,7 +117,7 @@ const FeaturesSection = () => {
               </p>
             </div>
 
-            {/* Step 3 */}
+
             <div className="text-center group">
               <div className="w-16 h-16 rounded-full bg-bodhi-gold/10 flex items-center justify-center mx-auto mb-4 text-2xl font-mono font-bold text-bodhi-gold transition-transform duration-300 group-hover:scale-110">
                 3
@@ -142,7 +130,7 @@ const FeaturesSection = () => {
           </div>
         </div>
 
-        {/* Call to Action */}
+        
         {!user && (
           <div className="text-center mt-16">
             <Link

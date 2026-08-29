@@ -1,7 +1,3 @@
-/**
- * useFeedback Hook
- */
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosClient from '../api/axiosClient';
 import API from '../api/endpoints';

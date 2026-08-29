@@ -1,43 +1,31 @@
-/**
- * useReports Hook - One Health reporting
- */
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosClient from '../api/axiosClient';
 import API from '../api/endpoints';
 import toast from 'react-hot-toast';
 
 export const useReports = () => {
-  const queryClient = useQueryClient();
-
-  // Get all reports
+  const queryClient = useQueryClient();  
   const { data: reports = [], isLoading, refetch } = useQuery({
     queryKey: ['reports'],
     queryFn: async () => {
       const { data } = await axiosClient.get(API.REPORTS.BASE);
       return data.reports || [];
     },
-  });
-
-  // Get report stats
+  });  
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['report-stats'],
     queryFn: async () => {
       const { data } = await axiosClient.get(API.REPORTS.STATS);
       return data.stats || [];
     },
-  });
-
-  // Get One Health summary
+  });  
   const { data: summary, isLoading: summaryLoading } = useQuery({
     queryKey: ['one-health-summary'],
     queryFn: async () => {
       const { data } = await axiosClient.get(API.REPORTS.ONE_HEALTH_SUMMARY);
       return data.summary;
     },
-  });
-
-  // Get top districts
+  });  
   const { data: topDistricts } = useQuery({
     queryKey: ['top-districts'],
     queryFn: async () => {
@@ -45,8 +33,6 @@ export const useReports = () => {
       return data.districts || [];
     },
   });
-
-  // Create report
   const createReport = useMutation({
     mutationFn: async (reportData) => {
       const res = await axiosClient.post(API.REPORTS.CREATE, reportData);

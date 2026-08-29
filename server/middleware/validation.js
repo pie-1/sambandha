@@ -1,12 +1,6 @@
-/**
- * Validation Middleware - One Health Focus
- * Validates request data with proper error handling
- */
-
 const isValidEmail = (email) => /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
 const isValidPhone = (phone) => /^[0-9]{10}$/.test(phone);
 
-// Valid One Health categories
 const ONE_HEALTH_CATEGORIES = [
   'maternal_health', 'child_nutrition', 'water_quality', 
   'air_quality', 'disease_prevention', 'healthcare_access',
@@ -15,9 +9,6 @@ const ONE_HEALTH_CATEGORIES = [
 
 const ONE_HEALTH_SECTORS = ['health', 'environment', 'one_health'];
 
-/**
- * Validate User Registration
- */
 exports.validateRegistration = (req, res, next) => {
   if (!req.body || Object.keys(req.body).length === 0) {
     return res.status(400).json({
@@ -51,9 +42,6 @@ exports.validateRegistration = (req, res, next) => {
   next();
 };
 
-/**
- * Validate Draft Creation - One Health Focus
- */
 exports.validateDraft = (req, res, next) => {
   if (!req.body || Object.keys(req.body).length === 0) {
     return res.status(400).json({
@@ -69,7 +57,6 @@ exports.validateDraft = (req, res, next) => {
     errors.push({ field: 'title', message: 'Title must be between 5 and 200 characters' });
   }
 
-  // Only allow One Health sectors
   if (!sector || !ONE_HEALTH_SECTORS.includes(sector)) {
     errors.push({ 
       field: 'sector', 
@@ -77,7 +64,6 @@ exports.validateDraft = (req, res, next) => {
     });
   }
 
-  // Validate sub-category if provided
   if (subCategory && !ONE_HEALTH_CATEGORIES.includes(subCategory)) {
     errors.push({ 
       field: 'subCategory', 
@@ -101,10 +87,6 @@ exports.validateDraft = (req, res, next) => {
   }
   next();
 };
-
-/**
- * Validate Comment
- */
 exports.validateComment = (req, res, next) => {
   const { text } = req.body;
   if (!text || text.length < 1 || text.length > 5000) {
@@ -116,9 +98,6 @@ exports.validateComment = (req, res, next) => {
   next();
 };
 
-/**
- * Validate Feedback
- */
 exports.validateFeedback = (req, res, next) => {
   const { phone, reaction } = req.body;
   const errors = [];
@@ -136,9 +115,6 @@ exports.validateFeedback = (req, res, next) => {
   next();
 };
 
-/**
- * Validate Report - One Health Focus
- */
 exports.validateReport = (req, res, next) => {
   const { title, description, category, district, urgency } = req.body;
   const errors = [];
@@ -164,9 +140,3 @@ exports.validateReport = (req, res, next) => {
   }
   next();
 };
-
-/**
- * This validation middleware ensures all incoming requests meet One Health-specific validation rules. 
- * It validates user registration, draft creation, comments, feedback, and citizen reports. 
- * All sectors and categories are restricted to One Health domains.
- */

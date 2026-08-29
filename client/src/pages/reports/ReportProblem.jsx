@@ -1,8 +1,3 @@
-/**
- * STEP 1: Public Data Collection - Citizen Problem Reporting
- * Citizens report health/environmental issues in their communities
- */
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -88,15 +83,14 @@ const ReportProblem = () => {
 
     const result = await createReport.mutateAsync(data);
     if (result) {
-      toast.success('✅ Report submitted! Your voice matters.');
+      toast.success('Report submitted! Your voice matters.');
       navigate('/dashboard');
     }
     setLoading(false);
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
-      {/* Step Indicator */}
+    <div className="max-w-3xl mx-auto">      
       <div className="flex items-center gap-4 mb-6">
         <div className="flex items-center gap-2">
           <span className="bg-sdg-gold text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">1</span>
@@ -115,7 +109,7 @@ const ReportProblem = () => {
 
       <div className="card">
         <form onSubmit={handleSubmit}>
-          {/* Title */}
+
           <div className="mb-4">
             <label className="label">Problem Title *</label>
             <input
@@ -126,9 +120,7 @@ const ReportProblem = () => {
               placeholder="What's the problem?"
               required
             />
-          </div>
-
-          {/* Description */}
+          </div>          
           <div className="mb-4">
             <label className="label">Description *</label>
             <textarea
@@ -138,9 +130,7 @@ const ReportProblem = () => {
               placeholder="Describe the problem in detail..."
               required
             />
-          </div>
-
-          {/* Category & Urgency */}
+          </div>          
           <div className="grid grid-cols-2 gap-4">
             <div className="mb-4">
               <label className="label">Category *</label>
@@ -170,8 +160,6 @@ const ReportProblem = () => {
               </select>
             </div>
           </div>
-
-          {/* Location */}
           <div className="grid grid-cols-2 gap-4">
             <div className="mb-4">
               <label className="label">District *</label>
@@ -197,9 +185,7 @@ const ReportProblem = () => {
                 placeholder="Municipality name"
               />
             </div>
-          </div>
-
-          {/* Affected Population */}
+          </div>          
           <div className="grid grid-cols-3 gap-4">
             <div className="mb-4">
               <label className="label">People Affected</label>
@@ -234,9 +220,7 @@ const ReportProblem = () => {
                 min="0"
               />
             </div>
-          </div>
-
-          {/* Image Upload */}
+          </div>          
           <div className="mb-6">
             <label className="label">Upload Images</label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-sdg-gold transition">

@@ -1,11 +1,5 @@
-/**
- * Meeting Controller
- * Handles meeting room creation using Jitsi Meet (free)
- */
-
 const Draft = require("../models/Draft");
 
-// Generate meeting link using Jitsi Meet (free, no API key needed)
 const generateMeetingLink = (draftId) => {
   const roomName = `Sambandh-${draftId}-${Date.now()}`;
   return `https://meet.jit.si/${roomName}`;
@@ -20,15 +14,13 @@ exports.createMeeting = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Draft not found' });
     }
 
-    // Only officers and experts can create meetings
-    if (!['officer', 'expert'].includes(req.user.role)) {
+if (!['officer', 'expert'].includes(req.user.role)) {
       return res.status(403).json({ 
         success: false, 
         message: 'Only officers and experts can create meetings' 
       });
     }
 
-    // Check if meeting already exists
     if (draft.meetingLink) {
       return res.json({ 
         success: true, 
@@ -37,7 +29,6 @@ exports.createMeeting = async (req, res) => {
       });
     }
 
-    // Create new meeting
     const meetingLink = generateMeetingLink(draft._id);
 
     draft.meetingLink = meetingLink;
@@ -83,8 +74,7 @@ exports.deleteMeeting = async (req, res) => {
     if (!draft) {
       return res.status(404).json({ success: false, message: 'Draft not found' });
     }
-
-    // Only officer who created draft can delete meeting
+ 
     if (draft.officerId.toString() !== req.user.id) {
       return res.status(403).json({ success: false, message: 'Not authorized' });
     }

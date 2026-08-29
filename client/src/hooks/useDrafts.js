@@ -1,26 +1,17 @@
-/**
- * useDrafts Hook - One Health Focus
- * All draft operations including dashboard
- */
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosClient from '../api/axiosClient';
 import API from '../api/endpoints';
 import toast from 'react-hot-toast';
 
 export const useDrafts = (filters = {}) => {
-  const queryClient = useQueryClient();
-
-  // Get all drafts
+  const queryClient = useQueryClient();  
   const { data: drafts = [], isLoading, refetch } = useQuery({
     queryKey: ['drafts', filters],
     queryFn: async () => {
       const { data } = await axiosClient.get(API.DRAFTS.GET_ALL, { params: filters });
       return data.drafts || [];
     },
-  });
-
-  // Get single draft
+  });  
   const useDraft = (id) => {
     return useQuery({
       queryKey: ['draft', id],
@@ -31,8 +22,7 @@ export const useDrafts = (filters = {}) => {
       enabled: !!id,
     });
   };
-
-  // Create draft
+  
   const createDraft = useMutation({
     mutationFn: async (data) => {
       const res = await axiosClient.post(API.DRAFTS.CREATE, data);
@@ -45,9 +35,7 @@ export const useDrafts = (filters = {}) => {
     onError: (error) => {
       toast.error(error.response?.data?.message || 'Failed to create draft');
     },
-  });
-
-  // Update draft
+  });  
   const updateDraft = useMutation({
     mutationFn: async ({ id, ...data }) => {
       const res = await axiosClient.patch(API.DRAFTS.UPDATE(id), data);
@@ -61,9 +49,7 @@ export const useDrafts = (filters = {}) => {
     onError: (error) => {
       toast.error(error.response?.data?.message || 'Failed to update draft');
     },
-  });
-
-  // Finalize draft
+  });  
   const finalizeDraft = useMutation({
     mutationFn: async (id) => {
       const res = await axiosClient.patch(API.DRAFTS.FINALIZE(id));
@@ -77,9 +63,7 @@ export const useDrafts = (filters = {}) => {
     onError: (error) => {
       toast.error(error.response?.data?.message || 'Failed to finalize draft');
     },
-  });
-
-  // Expert Consensus
+  });  
   const updateConsensus = useMutation({
     mutationFn: async ({ id, approved, comment }) => {
       const res = await axiosClient.patch(API.DRAFTS.CONSENSUS(id), { approved, comment });
@@ -93,8 +77,6 @@ export const useDrafts = (filters = {}) => {
       toast.error(error.response?.data?.message || 'Failed to update consensus');
     },
   });
-
-  // Implementation Tracking
   const updateImplementation = useMutation({
     mutationFn: async ({ id, ...data }) => {
       const res = await axiosClient.patch(API.DRAFTS.IMPLEMENTATION(id), data);
@@ -108,8 +90,6 @@ export const useDrafts = (filters = {}) => {
       toast.error(error.response?.data?.message || 'Failed to update implementation');
     },
   });
-
-  // ===== ✅ FIXED: Get One Health Dashboard =====
   const useOneHealthDashboard = () => {
     return useQuery({
       queryKey: ['one-health-dashboard'],
@@ -131,6 +111,6 @@ export const useDrafts = (filters = {}) => {
     finalizeDraft,
     updateConsensus,
     updateImplementation,
-    useOneHealthDashboard, // ✅ This is now exported
+    useOneHealthDashboard, 
   };
 };

@@ -1,7 +1,3 @@
-/**
- * useMeeting Hook - For STEP 3 Collaboration
- */
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosClient from '../api/axiosClient';
 import API from '../api/endpoints';
@@ -9,8 +5,7 @@ import toast from 'react-hot-toast';
 
 export const useMeeting = (draftId) => {
   const queryClient = useQueryClient();
-
-  // Get meeting link
+  
   const { data: meeting, isLoading } = useQuery({
     queryKey: ['meeting', draftId],
     queryFn: async () => {
@@ -18,9 +13,7 @@ export const useMeeting = (draftId) => {
       return data;
     },
     enabled: !!draftId,
-  });
-
-  // Create meeting
+  });  
   const createMeeting = useMutation({
     mutationFn: async () => {
       const { data } = await axiosClient.post(API.MEETINGS.CREATE(draftId));

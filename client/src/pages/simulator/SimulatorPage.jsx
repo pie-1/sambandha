@@ -1,7 +1,3 @@
-/**
- * Simulator Page - ML Integration
- */
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -18,8 +14,7 @@ const SimulatorPage = () => {
   const [simulating, setSimulating] = useState(false);
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
-
-  // Only Officers and Experts can access
+  
   if (!user || (user.role !== 'officer' && user.role !== 'expert')) {
     return (
       <div className="text-center py-12">
@@ -33,13 +28,11 @@ const SimulatorPage = () => {
   const handleSimulate = async () => {
     setSimulating(true);
     setError(null);
-    try {
-      // Call the ML prediction endpoint
+    try {      
       const { data } = await axiosClient.get(`/drafts/${id}/ml-prediction`);
       
-      const prediction = data.prediction;
+      const prediction = data.prediction;  
       
-      // Transform the prediction data for display
       setResults({
         successProbability: prediction.successModel?.probability || 0.5,
         efficiencyScore: prediction.impactModel?.best?.marginalPerCrore || 0.3,
@@ -50,8 +43,7 @@ const SimulatorPage = () => {
         budgetAmount: draft?.budgetAmount || 10000000,
         riskFactors: prediction.consensus?.filter(c => c.level === 'negative').map(c => c.text) || [],
         recommendations: prediction.consensus?.filter(c => c.level === 'positive').map(c => c.text) || [],
-        drivers: prediction.successModel?.drivers || [],
-        // Friend's ML model specific fields
+        drivers: prediction.successModel?.drivers || [],        
         tagging: prediction.tagging,
         impactModel: prediction.impactModel,
         claimsModel: prediction.claimsModel,
@@ -82,9 +74,7 @@ const SimulatorPage = () => {
           <h1 className="text-2xl font-bold text-bodhi-navy">Impact Simulator</h1>
           <p className="text-sm text-gray-500">ML-powered policy impact prediction</p>
         </div>
-      </div>
-
-      {/* Draft Info */}
+      </div>      
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
         <h3 className="font-bold text-bodhi-navy">{draft.title}</h3>
         <p className="text-sm text-gray-500">
@@ -95,9 +85,7 @@ const SimulatorPage = () => {
             Budget: NPR {draft.budgetAmount.toLocaleString()}
           </p>
         )}
-      </div>
-
-      {/* Simulate Button */}
+      </div>      
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6 text-center">
         <button
           onClick={handleSimulate}
@@ -112,14 +100,12 @@ const SimulatorPage = () => {
         {error && (
           <p className="text-sm text-red-600 mt-2">{error}</p>
         )}
-      </div>
-
-      {/* Results */}
+      </div>      
       {results && (
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
           <h3 className="font-bold text-bodhi-navy mb-4">ML Prediction Results</h3>
 
-          {/* Success Probability */}
+          
           <div className="mb-4">
             <div className="flex justify-between items-center mb-1">
               <span className="text-sm text-gray-600">Success Probability</span>
@@ -136,9 +122,7 @@ const SimulatorPage = () => {
                 style={{ width: `${results.successProbability * 100}%` }}
               />
             </div>
-          </div>
-
-          {/* Key Metrics */}
+          </div>          
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <div className="text-2xl font-bold text-bodhi-navy">
@@ -158,9 +142,7 @@ const SimulatorPage = () => {
               </div>
               <div className="text-xs text-gray-500">Risk Level</div>
             </div>
-          </div>
-
-          {/* Confidence Score */}
+          </div>          
           <div className="mb-4 p-3 bg-gray-50 rounded-lg">
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">Confidence Score</span>
@@ -169,8 +151,7 @@ const SimulatorPage = () => {
               </span>
             </div>
           </div>
-
-          {/* Risk Factors */}
+          
           {results.riskFactors && results.riskFactors.length > 0 && (
             <div className="mb-4">
               <h4 className="font-semibold text-bodhi-navy mb-2">Risk Factors</h4>
@@ -183,8 +164,6 @@ const SimulatorPage = () => {
               </ul>
             </div>
           )}
-
-          {/* Recommendations */}
           {results.recommendations && results.recommendations.length > 0 && (
             <div className="mb-4">
               <h4 className="font-semibold text-bodhi-navy mb-2">Recommendations</h4>
@@ -198,7 +177,6 @@ const SimulatorPage = () => {
             </div>
           )}
 
-          {/* Drivers (from friend's ML model) */}
           {results.drivers && results.drivers.length > 0 && (
             <div className="mb-4">
               <h4 className="font-semibold text-bodhi-navy mb-2">Key Drivers</h4>
@@ -214,8 +192,7 @@ const SimulatorPage = () => {
               </div>
             </div>
           )}
-
-          {/* Sources (from friend's ML model) */}
+        
           {results.sources && results.sources.length > 0 && (
             <div className="mt-4 pt-4 border-t border-gray-100">
               <h4 className="font-semibold text-bodhi-navy mb-2">Data Sources</h4>
